@@ -106,7 +106,7 @@ export default function About() {
               {/* Overlay badge */}
               <div className="absolute bottom-6 left-6 right-6 bg-white/95 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-forest-100">
                 <div className="font-accent text-forest-700 text-xs tracking-[0.2em] uppercase mb-1">Established</div>
-                <div className="font-display text-forest-900 text-2xl font-bold">1998 — Warangal, Telangana</div>
+                <div className="font-display text-forest-900 text-2xl font-bold">1999 — Warangal, Telangana</div>
               </div>
             </div>
 

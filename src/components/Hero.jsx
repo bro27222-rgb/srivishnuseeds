@@ -91,7 +91,7 @@ export default function Hero() {
           >
             <span className="w-2 h-2 rounded-full bg-harvest-400 animate-pulse" />
             <span className="font-body text-xs text-white/90 tracking-[0.15em] uppercase font-semibold">
-              Trusted by Indian Farmers Since 1998
+              Trusted by Indian Farmers Since 1999
             </span>
           </div>
 

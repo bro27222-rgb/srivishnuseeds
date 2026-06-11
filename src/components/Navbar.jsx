@@ -48,7 +48,7 @@ export default function Navbar() {
           : 'bg-transparent'
       }`}
     >
-      <nav className="max-w-7xl mx-auto px-6 lg:px-10 flex items-center justify-between h-20">
+      <nav className="max-w-7xl mx-auto px-6 lg:px-10 flex items-center justify-between h-24">
 
         {/* ── Logo + Name ── */}
         <a
@@ -56,19 +56,16 @@ export default function Navbar() {
           onClick={e => { e.preventDefault(); handleNav('#home') }}
           className="flex items-center gap-3 group"
         >
-          {/* ── Logo image: replace the SVG below with your actual logo ── */}
-          <div className="w-11 h-11 rounded-full bg-gradient-to-br from-forest-600 to-forest-800 flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow duration-300 overflow-hidden flex-shrink-0">
-            {/* ✅ Once you place logo.png in /public, use this instead:
-                <img src="/logo.png" alt="Sri Vishnu Seeds Logo" className="w-full h-full object-contain p-1" />
-            */}
+          {/* ── Logo image ── */}
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-forest-600 to-forest-800 flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow duration-300 overflow-hidden flex-shrink-0">
             <img src={logo} alt="Sri Vishnu Seeds Logo" className="w-full h-full object-contain p-1" />
           </div>
 
           <div className="leading-tight">
-            <span className={`font-accent text-base font-semibold tracking-wide transition-colors duration-300 ${scrolled ? 'text-forest-800' : 'text-white'}`}>
+            <span className={`font-accent text-xl font-bold tracking-wide transition-colors duration-300 ${scrolled ? 'text-forest-800' : 'text-white'}`}>
               Sri Vishnu Seeds
             </span>
-            <span className={`block text-[10px] tracking-[0.18em] uppercase font-body font-light transition-colors duration-300 ${scrolled ? 'text-earth-600' : 'text-harvest-300'}`}>
+            <span className={`block text-xs tracking-[0.18em] uppercase font-body font-semibold transition-colors duration-300 ${scrolled ? 'text-earth-600' : 'text-harvest-300'}`}>
               Pvt. Ltd.
             </span>
           </div>
