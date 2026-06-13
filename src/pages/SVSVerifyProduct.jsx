@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
+import logo from "../assets/logo.png";
 
 export default function SVSVerifyProduct() {
   const { labelNumber } = useParams();
@@ -23,25 +24,55 @@ export default function SVSVerifyProduct() {
   if (error) return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lato:wght@300;400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap');
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
+
         .svs-state {
           min-height: 100vh;
           display: flex; flex-direction: column; align-items: center; justify-content: center;
-          background: #fdfaf4; font-family: 'Lato', sans-serif;
-          gap: 14px; padding: 20px; text-align: center;
+          background: #0D1F0F;
+          background-image:
+            radial-gradient(ellipse 80% 60% at 50% 0%, rgba(201,150,42,0.08) 0%, transparent 60%),
+            radial-gradient(ellipse 50% 50% at 50% 100%, rgba(201,150,42,0.05) 0%, transparent 60%);
+          font-family: 'DM Sans', sans-serif;
+          gap: 20px; padding: 40px 20px; text-align: center;
         }
         .svs-state-icon {
-          width: 64px; height: 64px; border-radius: 50%;
-          background: linear-gradient(135deg, #dc2626, #f87171);
+          width: 72px; height: 72px;
+          border: 1px solid rgba(201,150,42,0.4);
+          border-radius: 50%;
           display: flex; align-items: center; justify-content: center;
-          font-size: 26px; box-shadow: 0 8px 24px rgba(220,38,38,0.25);
+          position: relative;
         }
-        .svs-state-title { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; color: #dc2626; }
-        .svs-state-sub { font-size: 14px; color: #9aab9a; max-width: 280px; line-height: 1.65; }
+        .svs-state-icon::before {
+          content: ''; position: absolute; inset: 4px;
+          border: 1px solid rgba(201,150,42,0.2);
+          border-radius: 50%;
+        }
+        .svs-state-icon-x {
+          font-size: 22px; color: #C9962A; font-weight: 300; line-height: 1;
+        }
+        .svs-state-rule {
+          width: 48px; height: 1px;
+          background: linear-gradient(90deg, transparent, #C9962A, transparent);
+        }
+        .svs-state-title {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 28px; font-weight: 600; font-style: italic;
+          color: #C9962A; letter-spacing: 0.5px;
+        }
+        .svs-state-sub {
+          font-size: 13px; color: rgba(248,243,232,0.45);
+          max-width: 260px; line-height: 1.75; font-weight: 300;
+          letter-spacing: 0.2px;
+        }
       `}</style>
       <div className="svs-state">
-        <div className="svs-state-icon">✕</div>
+        <div className="svs-state-icon">
+          <span className="svs-state-icon-x">✕</span>
+        </div>
+        <div className="svs-state-rule" />
         <div className="svs-state-title">Invalid Product Code</div>
         <div className="svs-state-sub">This QR code could not be verified. Please check the label and try again.</div>
       </div>
@@ -52,43 +83,71 @@ export default function SVSVerifyProduct() {
   if (!data) return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lato:wght@300;400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap');
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
+
         .svs-state {
           min-height: 100vh;
           display: flex; flex-direction: column; align-items: center; justify-content: center;
-          background: #fdfaf4; font-family: 'Lato', sans-serif;
-          gap: 16px; padding: 20px; text-align: center;
+          background: #0D1F0F;
+          background-image:
+            radial-gradient(ellipse 80% 60% at 50% 0%, rgba(201,150,42,0.08) 0%, transparent 60%),
+            radial-gradient(ellipse 50% 50% at 50% 100%, rgba(201,150,42,0.05) 0%, transparent 60%);
+          font-family: 'DM Sans', sans-serif;
+          gap: 24px; padding: 40px 20px; text-align: center;
         }
-        .svs-load-emblem {
-          width: 60px; height: 60px; border-radius: 50%;
-          background: linear-gradient(135deg, #174f19, #2d7d2d);
+        .svs-load-logo {
+          width: 72px; height: 72px;
+          border: 1px solid rgba(201,150,42,0.35);
+          border-radius: 50%;
           display: flex; align-items: center; justify-content: center;
-          font-size: 24px; box-shadow: 0 8px 24px rgba(23,79,25,0.28);
-          animation: svsPulse 1.6s ease-in-out infinite;
+          position: relative;
+          animation: svsRotateBorder 3s linear infinite;
         }
-        @keyframes svsPulse {
-          0%, 100% { transform: scale(1); box-shadow: 0 8px 24px rgba(23,79,25,0.28); }
-          50% { transform: scale(1.06); box-shadow: 0 12px 32px rgba(23,79,25,0.42); }
+        @keyframes svsRotateBorder {
+          0% { box-shadow: 0 0 0 0 rgba(201,150,42,0), inset 0 0 0 0 rgba(201,150,42,0); }
+          50% { box-shadow: 0 0 24px 2px rgba(201,150,42,0.18), inset 0 0 12px 0 rgba(201,150,42,0.08); }
+          100% { box-shadow: 0 0 0 0 rgba(201,150,42,0), inset 0 0 0 0 rgba(201,150,42,0); }
         }
-        .svs-load-title { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; color: #174f19; }
-        .svs-load-sub { font-size: 11px; color: #9aab9a; letter-spacing: 2px; text-transform: uppercase; }
+        .svs-load-logo img { width: 44px; height: 44px; object-fit: contain; filter: brightness(0) invert(1) sepia(1) saturate(2) hue-rotate(5deg); opacity: 0.85; }
+        .svs-load-emblem-fallback {
+          font-size: 26px; opacity: 0.8;
+        }
+        .svs-load-rule {
+          width: 40px; height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(201,150,42,0.6), transparent);
+        }
+        .svs-load-title {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 20px; font-weight: 500; color: #F8F3E8;
+          letter-spacing: 0.5px;
+        }
+        .svs-load-sub {
+          font-size: 10px; color: rgba(201,150,42,0.6);
+          letter-spacing: 3.5px; text-transform: uppercase; font-weight: 400;
+        }
+        .svs-dots { display: flex; gap: 8px; align-items: center; }
         .svs-dots span {
-          display: inline-block; width: 7px; height: 7px; border-radius: 50%;
-          background: #2d7d2d; margin: 0 3px;
-          animation: svsDot 1.2s ease-in-out infinite;
+          display: inline-block; width: 5px; height: 5px; border-radius: 50%;
+          background: rgba(201,150,42,0.5);
+          animation: svsDot 1.4s ease-in-out infinite;
         }
-        .svs-dots span:nth-child(2) { animation-delay: 0.2s; }
-        .svs-dots span:nth-child(3) { animation-delay: 0.4s; }
+        .svs-dots span:nth-child(2) { animation-delay: 0.22s; }
+        .svs-dots span:nth-child(3) { animation-delay: 0.44s; }
         @keyframes svsDot {
-          0%, 80%, 100% { transform: scale(0.7); opacity: 0.4; }
+          0%, 80%, 100% { transform: scale(0.6); opacity: 0.3; }
           40% { transform: scale(1); opacity: 1; }
         }
       `}</style>
       <div className="svs-state">
-        <div className="svs-load-emblem">🌾</div>
-        <div className="svs-load-title">Verifying with Sri Vishnu Seeds</div>
-        <div className="svs-load-sub">Please wait</div>
+        <div className="svs-load-logo">
+          <img src={logo} alt="SVS Logo" onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='block'; }} />
+          <span className="svs-load-emblem-fallback" style={{display:'none'}}>🌾</span>
+        </div>
+        <div className="svs-load-rule" />
+        <div className="svs-load-title">Sri Vishnu Seeds</div>
+        <div className="svs-load-sub">Verifying authenticity</div>
         <div className="svs-dots"><span /><span /><span /></div>
       </div>
     </>
@@ -98,170 +157,280 @@ export default function SVSVerifyProduct() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Cinzel:wght@400;600;700&family=Lato:wght@300;400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=DM+Sans:wght@300;400;500;600&display=swap');
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
+        /* ── ROOT ── */
         .svs-vp-root {
           min-height: 100vh;
-          background: #fdfaf4;
-          padding: 28px 14px 52px;
-          font-family: 'Lato', sans-serif;
+          background: #0D1F0F;
+          background-image:
+            radial-gradient(ellipse 100% 55% at 50% -5%, rgba(201,150,42,0.10) 0%, transparent 65%),
+            radial-gradient(ellipse 60% 40% at 10% 50%, rgba(13,31,15,0.0) 0%, transparent 70%),
+            radial-gradient(ellipse 60% 40% at 90% 80%, rgba(201,150,42,0.04) 0%, transparent 55%);
+          padding: 32px 16px 64px;
+          font-family: 'DM Sans', sans-serif;
           -webkit-font-smoothing: antialiased;
-          position: relative;
-        }
-        .svs-vp-root::before {
-          content: '';
-          position: absolute; inset: 0;
-          background:
-            radial-gradient(ellipse 70% 40% at 15% 5%, rgba(23,79,25,0.07) 0%, transparent 55%),
-            radial-gradient(ellipse 50% 40% at 85% 95%, rgba(217,119,6,0.06) 0%, transparent 50%);
-          pointer-events: none;
         }
 
+        /* ── CARD ── */
         .svs-vp-card {
-          position: relative; z-index: 1;
-          max-width: 480px;
+          position: relative;
+          max-width: 460px;
           margin: 0 auto;
-          background: #fffdf9;
-          border-radius: 20px;
-          border: 1px solid #e8dfc8;
-          box-shadow: 0 20px 60px rgba(23,79,25,0.13), 0 4px 16px rgba(0,0,0,0.05);
+          background: #F8F3E8;
+          border-radius: 3px;
           overflow: hidden;
+          box-shadow:
+            0 0 0 1px rgba(201,150,42,0.35),
+            0 0 0 5px rgba(13,31,15,0.6),
+            0 0 0 6px rgba(201,150,42,0.18),
+            0 32px 80px rgba(0,0,0,0.55),
+            0 8px 24px rgba(0,0,0,0.35);
         }
 
-        /* Forest-to-harvest gradient top bar — matches SVS palette */
+        /* Outer gold frame lines — decorative pseudo-border */
+        .svs-vp-card::before {
+          content: '';
+          position: absolute; inset: 8px;
+          border: 1px solid rgba(201,150,42,0.22);
+          border-radius: 1px;
+          pointer-events: none;
+          z-index: 10;
+        }
+
+        /* ── TOP ORNAMENT BAR ── */
         .svs-vp-top {
-          height: 5px;
-          background: linear-gradient(90deg, #174f19, #2d7d2d, #d97706, #2d7d2d, #174f19);
+          height: 6px;
+          background: linear-gradient(90deg,
+            #5A7A5C 0%,
+            #C9962A 25%,
+            #E8B84B 45%,
+            #C9962A 55%,
+            #E8B84B 70%,
+            #C9962A 80%,
+            #5A7A5C 100%
+          );
         }
 
-        /* HEADER */
+        /* ── HEADER ── */
         .svs-vp-header {
           text-align: center;
-          padding: 28px 24px 22px;
-          border-bottom: 1px solid #ede8de;
-          background: linear-gradient(180deg, #f5ede0 0%, #fffdf9 100%);
+          padding: 32px 28px 26px;
+          border-bottom: 1px solid rgba(201,150,42,0.2);
+          background: linear-gradient(180deg, rgba(201,150,42,0.06) 0%, transparent 100%);
+          position: relative;
         }
+
+        /* Corner ornaments */
+        .svs-vp-header::before,
+        .svs-vp-header::after {
+          content: '✦';
+          position: absolute;
+          font-size: 8px;
+          color: rgba(201,150,42,0.4);
+          top: 14px;
+        }
+        .svs-vp-header::before { left: 20px; }
+        .svs-vp-header::after  { right: 20px; }
+
         .svs-vp-emblem {
-          width: 56px; height: 56px;
-          background: linear-gradient(135deg, #174f19, #2d7d2d);
+          width: 72px; height: 72px;
+          margin: 0 auto 16px;
           border-radius: 50%;
+          border: 1px solid rgba(201,150,42,0.4);
           display: flex; align-items: center; justify-content: center;
-          font-size: 22px;
-          margin: 0 auto 14px;
-          box-shadow: 0 6px 20px rgba(23,79,25,0.24);
+          background: #fff;
+          position: relative;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.8);
         }
+        .svs-vp-emblem::before {
+          content: ''; position: absolute; inset: 4px;
+          border: 1px solid rgba(201,150,42,0.15);
+          border-radius: 50%;
+        }
+        .svs-vp-emblem img {
+          width: 46px; height: 46px; object-fit: contain;
+        }
+        .svs-vp-emblem-fallback {
+          font-size: 28px;
+        }
+
         .svs-vp-brand {
-          font-family: 'Cinzel', serif;
-          font-size: 16px;
-          font-weight: 700;
-          color: #0b2d0e;
-          letter-spacing: 0.6px;
-          line-height: 1.3;
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 22px; font-weight: 700;
+          color: #0D1F0F;
+          letter-spacing: 2.5px;
+          text-transform: uppercase;
+          line-height: 1.2;
         }
         .svs-vp-pvt {
-          font-family: 'Lato', sans-serif;
-          font-size: 10px;
-          font-weight: 600;
-          letter-spacing: 3px;
+          font-family: 'DM Sans', sans-serif;
+          font-size: 9px; font-weight: 500;
+          letter-spacing: 3.5px;
           text-transform: uppercase;
-          color: #d97706;
-          margin-top: 2px;
+          color: #C9962A;
+          margin-top: 3px;
         }
+
+        /* Gold rule divider */
+        .svs-vp-divider {
+          display: flex; align-items: center; gap: 10px;
+          margin: 16px auto 0;
+          width: fit-content;
+        }
+        .svs-vp-divider-line {
+          width: 48px; height: 1px;
+          background: linear-gradient(90deg, transparent, #C9962A);
+        }
+        .svs-vp-divider-line.rev {
+          background: linear-gradient(90deg, #C9962A, transparent);
+        }
+        .svs-vp-divider-diamond {
+          width: 6px; height: 6px;
+          background: #C9962A;
+          transform: rotate(45deg);
+        }
+
         .svs-vp-badge {
           display: inline-flex;
           align-items: center;
-          gap: 7px;
-          margin-top: 14px;
-          padding: 6px 16px;
-          background: linear-gradient(135deg, #ecfdf5, #d1fae5);
-          border: 1px solid #6ee7b7;
-          border-radius: 20px;
-          color: #2d7d2d;
-          font-size: 11px;
-          font-weight: 700;
-          letter-spacing: 1.2px;
+          gap: 8px;
+          margin-top: 16px;
+          padding: 7px 18px;
+          background: #0D1F0F;
+          border: 1px solid rgba(201,150,42,0.5);
+          border-radius: 2px;
+          color: #C9962A;
+          font-size: 9px;
+          font-weight: 600;
+          letter-spacing: 2.5px;
           text-transform: uppercase;
+          font-family: 'DM Sans', sans-serif;
         }
         .svs-vp-check {
-          width: 18px; height: 18px;
-          background: linear-gradient(135deg, #2d7d2d, #4a9e4a);
+          width: 16px; height: 16px;
+          border: 1px solid #C9962A;
           border-radius: 50%;
           display: flex; align-items: center; justify-content: center;
-          color: #fff; font-size: 9px; font-weight: 700;
-          flex-shrink: 0;
+          color: #C9962A; font-size: 8px;
+          flex-shrink: 0; line-height: 1;
         }
 
-        /* TABLE */
-        .svs-vp-table { display: flex; flex-direction: column; }
+        /* ── MANIFEST TABLE ── */
+        .svs-vp-table {
+          display: flex; flex-direction: column;
+        }
+
         .svs-vp-row {
           display: flex;
-          border-bottom: 1px solid #f0ebe0;
-          transition: background 0.12s;
+          border-bottom: 1px solid rgba(201,150,42,0.12);
+          position: relative;
         }
         .svs-vp-row:last-child { border-bottom: none; }
-        .svs-vp-row:hover { background: #faf7f0; }
+
+        /* Subtle left accent on hover */
+        .svs-vp-row::before {
+          content: '';
+          position: absolute; left: 0; top: 0; bottom: 0; width: 0;
+          background: rgba(201,150,42,0.08);
+          transition: width 0.2s ease;
+        }
+        .svs-vp-row:hover::before { width: 100%; }
+
         .svs-vp-lbl {
           flex: 1;
-          padding: 11px 16px;
-          background: #f7f4ee;
-          font-size: 10px;
-          font-weight: 700;
-          color: #9aab9a;
-          letter-spacing: 0.5px;
+          padding: 12px 16px 12px 20px;
+          background: rgba(201,150,42,0.05);
+          font-size: 9px; font-weight: 600;
+          color: #5A7A5C;
+          letter-spacing: 1.8px;
           text-transform: uppercase;
-          line-height: 1.5;
-          border-right: 1px solid #ede8de;
+          line-height: 1.6;
+          border-right: 1px solid rgba(201,150,42,0.14);
+          font-family: 'DM Sans', sans-serif;
+          position: relative; z-index: 1;
         }
         .svs-vp-val {
-          flex: 1.6;
-          padding: 11px 16px;
-          font-size: 13px;
-          font-weight: 500;
-          color: #1a1a1a;
-          line-height: 1.55;
+          flex: 1.65;
+          padding: 12px 20px 12px 16px;
+          font-size: 13px; font-weight: 400;
+          color: #1C2B1D;
+          line-height: 1.6;
+          font-family: 'DM Sans', sans-serif;
+          position: relative; z-index: 1;
         }
-        .svs-vp-val.bold { font-weight: 700; color: #0b2d0e; font-size: 14px; }
+        .svs-vp-val.bold {
+          font-family: 'Cormorant Garamond', serif;
+          font-weight: 700; font-size: 16px;
+          color: #0D1F0F; letter-spacing: 0.3px;
+        }
 
-        /* PDF BUTTON */
+        /* Section divider between rows groups */
+        .svs-vp-section-rule {
+          height: 1px;
+          background: linear-gradient(90deg, rgba(201,150,42,0.08), rgba(201,150,42,0.35), rgba(201,150,42,0.08));
+          margin: 0;
+        }
+
+        /* ── PDF BUTTON AREA ── */
         .svs-vp-pdf-area {
-          padding: 20px 20px 24px;
-          background: linear-gradient(180deg, #fffdf9, #f5ede0);
-          border-top: 1px solid #ede8de;
+          padding: 22px 24px 26px;
+          background: linear-gradient(180deg, rgba(201,150,42,0.04) 0%, rgba(201,150,42,0.07) 100%);
+          border-top: 1px solid rgba(201,150,42,0.2);
         }
         .svs-vp-pdf-btn {
-          display: flex; align-items: center; justify-content: center; gap: 10px;
-          padding: 14px;
-          background: linear-gradient(135deg, #174f19 0%, #2d7d2d 100%);
-          color: #fff;
+          display: flex; align-items: center; justify-content: center; gap: 12px;
+          padding: 15px 20px;
+          background: #0D1F0F;
+          color: #C9962A;
           text-decoration: none;
-          border-radius: 10px;
-          font-family: 'Cinzel', serif;
-          font-size: 13px;
-          font-weight: 600;
-          letter-spacing: 0.8px;
-          box-shadow: 0 4px 18px rgba(23,79,25,0.28);
-          transition: transform 0.15s, box-shadow 0.2s;
+          border-radius: 2px;
+          border: 1px solid rgba(201,150,42,0.45);
+          font-family: 'DM Sans', sans-serif;
+          font-size: 10px; font-weight: 600;
+          letter-spacing: 2.8px;
+          text-transform: uppercase;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.2), inset 0 1px 0 rgba(201,150,42,0.1);
+          transition: background 0.2s, box-shadow 0.2s, border-color 0.2s;
           position: relative; overflow: hidden;
         }
         .svs-vp-pdf-btn::before {
-          content: ''; position: absolute; inset: 0;
-          background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%);
+          content: '';
+          position: absolute; inset: 0;
+          background: linear-gradient(135deg, rgba(201,150,42,0.08) 0%, transparent 50%);
           pointer-events: none;
         }
         .svs-vp-pdf-btn:hover {
-          transform: translateY(-1px);
-          box-shadow: 0 8px 26px rgba(23,79,25,0.36);
+          background: #152B17;
+          border-color: rgba(201,150,42,0.7);
+          box-shadow: 0 6px 28px rgba(0,0,0,0.3), 0 0 0 1px rgba(201,150,42,0.2), inset 0 1px 0 rgba(201,150,42,0.15);
         }
 
-        /* FOOTER */
+        /* ── BOTTOM BAR ── */
+        .svs-vp-bottom {
+          height: 6px;
+          background: linear-gradient(90deg,
+            #5A7A5C 0%,
+            #C9962A 25%,
+            #E8B84B 45%,
+            #C9962A 55%,
+            #E8B84B 70%,
+            #C9962A 80%,
+            #5A7A5C 100%
+          );
+        }
+
+        /* ── FOOTER ── */
         .svs-vp-footer {
           text-align: center;
-          margin-top: 18px;
-          font-size: 11px;
-          color: #bbb;
-          letter-spacing: 0.3px;
+          margin-top: 24px;
+          font-size: 9px; font-weight: 400;
+          color: rgba(248,243,232,0.25);
+          letter-spacing: 2px;
+          text-transform: uppercase;
+          font-family: 'DM Sans', sans-serif;
         }
       `}</style>
 
@@ -271,9 +440,21 @@ export default function SVSVerifyProduct() {
 
           {/* HEADER */}
           <div className="svs-vp-header">
-            <div className="svs-vp-emblem">🌾</div>
-            <div className="svs-vp-brand">SRI VISHNU SEEDS</div>
+            <div className="svs-vp-emblem">
+              <img
+                src="/logo.png"
+                alt="Sri Vishnu Seeds"
+                onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='block'; }}
+              />
+              <span className="svs-vp-emblem-fallback" style={{display:'none'}}>🌾</span>
+            </div>
+            <div className="svs-vp-brand">Sri Vishnu Seeds</div>
             <div className="svs-vp-pvt">Pvt. Ltd.</div>
+            <div className="svs-vp-divider">
+              <div className="svs-vp-divider-line" />
+              <div className="svs-vp-divider-diamond" />
+              <div className="svs-vp-divider-line rev" />
+            </div>
             <div className="svs-vp-badge">
               <div className="svs-vp-check">✔</div>
               Genuine Product Verified
@@ -284,14 +465,18 @@ export default function SVSVerifyProduct() {
           <div className="svs-vp-table">
             <Row label="Label Number"      value={data.labelNumber}               bold />
             <Row label="Crop Name"         value={data.cropName}                  bold />
+            <div className="svs-vp-section-rule" />
             <Row label="Packed Variety"    value={data.packedVariety} />
             <Row label="Lot Number"        value={data.packedLotNumber} />
+            <div className="svs-vp-section-rule" />
             <Row label="Date of Testing"   value={formatDate(data.dateOfTesting)} />
             <Row label="Date of Packaging" value={formatDate(data.dateOfPackaging)} />
             <Row label="Date of Expiry"    value={formatDate(data.dateOfExpiry)} />
+            <div className="svs-vp-section-rule" />
             <Row label="MRP"               value={data.mrp}                       bold />
             <Row label="Unit Sale Price"   value={data.unitSalePrice} />
             <Row label="Net Quantity"      value={data.netQty} />
+            <div className="svs-vp-section-rule" />
             <Row label="Packed At"         value={data.packedAt} />
             <Row label="Plant Address"     value={data.plantAddress} />
             <Row label="Produced By"       value={data.producedBy} />
@@ -303,6 +488,8 @@ export default function SVSVerifyProduct() {
               📄 View Product Leaflet (PDF)
             </a>
           </div>
+
+          <div className="svs-vp-bottom" />
         </div>
 
         <p className="svs-vp-footer">© {new Date().getFullYear()} Sri Vishnu Seeds Pvt. Ltd.</p>
