@@ -1,8 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/api/:match*",
-      "destination": "backendfor-srivishnu-seeds.vercel.app/api/:match*"
+      "source": "/api/:path*",
+      "destination": "https://backendfor-srivishnu-seeds.vercel.app/api/:path*"
     }
   ]
 }
