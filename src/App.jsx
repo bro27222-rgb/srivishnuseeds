@@ -1,14 +1,29 @@
 import React, { useEffect } from 'react'
-import Navbar    from './components/Navbar'
-import Hero      from './components/Hero'
-import About     from './components/About'
-import Crops     from './components/Crops'
-import Facilities from './components/Facilities'
-import Contact   from './components/Contact'
-import Footer    from './components/Footer'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 
-export default function App() {
-  // Scroll-reveal observer
+// ── Public site components ──
+import Navbar     from './components/Navbar'
+import Hero       from './components/Hero'
+import About      from './components/About'
+import Crops      from './components/Crops'
+import Facilities from './components/Facilities'
+import Contact    from './components/Contact'
+import Footer     from './components/Footer'
+
+// ── QR / Admin pages ──
+import SVSLogin           from './pages/SVSLogin'
+import SVSAdminDashboard  from './pages/SVSAdminDashboard'
+import SVSVerifyProduct   from './pages/SVSVerifyProduct'
+
+// ── Auth guard ──
+function ProtectedRoute({ children }) {
+  return localStorage.getItem('svs_isAdmin') === 'true'
+    ? children
+    : <Navigate to="/admin/login" replace />
+}
+
+// ── Main one-page site ──
+function MainSite() {
   useEffect(() => {
     const io = new IntersectionObserver(
       entries => entries.forEach(e => {
@@ -32,5 +47,33 @@ export default function App() {
       </main>
       <Footer />
     </div>
+  )
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        {/* Public site */}
+        <Route path="/" element={<MainSite />} />
+
+        {/* Admin */}
+        <Route path="/admin/login" element={<SVSLogin />} />
+        <Route
+          path="/admin/dashboard"
+          element={
+            <ProtectedRoute>
+              <SVSAdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* QR scan landing page */}
+        <Route path="/verify/:labelNumber" element={<SVSVerifyProduct />} />
+
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
