@@ -46,9 +46,8 @@ export default function SVSAdminDashboard() {
   }, [formData.mrp, formData.netQty, formData.totalWeight]);
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
-
-  const handleLogout = () => {
-    localStorage.removeItem('svs_isAdmin');
+const handleLogout = () => {
+    localStorage.removeItem('svs_token'); // Make sure this matches the new key
     navigate('/admin/login');
   };
 

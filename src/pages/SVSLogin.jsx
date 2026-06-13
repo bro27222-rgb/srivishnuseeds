@@ -13,7 +13,8 @@ export default function SVSLogin() {
     try {
       const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/auth/login`, { email, password });
       if (res.data.success) {
-        localStorage.setItem('svs_isAdmin', 'true');
+        // We now save the secure token instead of just the word 'true'
+        localStorage.setItem('svs_token', res.data.token);
         navigate('/admin/dashboard');
       }
     } catch (err) {

@@ -17,7 +17,8 @@ import SVSVerifyProduct   from './pages/SVSVerifyProduct'
 
 // ── Auth guard ──
 function ProtectedRoute({ children }) {
-  return localStorage.getItem('svs_isAdmin') === 'true'
+  // Now checks if the token exists to grant access
+  return localStorage.getItem('svs_token')
     ? children
     : <Navigate to="/admin/login" replace />
 }
