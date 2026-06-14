@@ -15,7 +15,7 @@ export default function SVSLogin() {
       if (res.data.success) {
         // We now save the secure token instead of just the word 'true'
         localStorage.setItem('svs_token', res.data.token);
-        navigate('/admin/dashboard');
+        navigate('/admin/home');
       }
     } catch (err) {
       alert("Invalid login details.");

@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { Phone, Mail, MapPin, Send, Leaf, CheckCircle } from 'lucide-react'
 import { useReveal } from '../hooks/useReveal'
+// Inside Contact.jsx
+import axios from 'axios'; // Make sure to import axios at the top
 
 const contactMethods = [
   {
@@ -34,10 +36,17 @@ export default function Contact() {
   const [sent, setSent] = useState(false)
   const [form, setForm] = useState({ name: '', phone: '', message: '' })
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    setSent(true)
+// Replace your current handleSubmit with this:
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/enquiry`, form);
+    setSent(true);
+    setForm({ name: '', phone: '', message: '' }); // Clear form
+  } catch (error) {
+    alert("Failed to send enquiry. Please try again.");
   }
+}
 
   return (
     <section id="contact" className="py-24 md:py-32 bg-parchment relative overflow-hidden">

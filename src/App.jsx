@@ -12,12 +12,13 @@ import Footer     from './components/Footer'
 
 // ── QR / Admin pages ──
 import SVSLogin           from './pages/SVSLogin'
+import SVSAdminHome       from './pages/SVSAdminHome'        // NEW IMPORT
 import SVSAdminDashboard  from './pages/SVSAdminDashboard'
+import SVSEnquiries       from './pages/SVSEnquiries'        // NEW IMPORT
 import SVSVerifyProduct   from './pages/SVSVerifyProduct'
 
 // ── Auth guard ──
 function ProtectedRoute({ children }) {
-  // Now checks if the token exists to grant access
   return localStorage.getItem('svs_token')
     ? children
     : <Navigate to="/admin/login" replace />
@@ -58,13 +59,31 @@ export default function App() {
         {/* Public site */}
         <Route path="/" element={<MainSite />} />
 
-        {/* Admin */}
+        {/* Admin Login */}
         <Route path="/admin/login" element={<SVSLogin />} />
+        
+        {/* Admin Secured Routes */}
+        <Route
+          path="/admin/home"
+          element={
+            <ProtectedRoute>
+              <SVSAdminHome />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/admin/dashboard"
           element={
             <ProtectedRoute>
               <SVSAdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/enquiries"
+          element={
+            <ProtectedRoute>
+              <SVSEnquiries />
             </ProtectedRoute>
           }
         />
