@@ -2,7 +2,6 @@ import { jsPDF } from "jspdf";
 import QRCode from "qrcode";
 import logo from '../assets/bnwLogo.png';  
 
-// Helper function to convert the image into a Base64 string
 const getBase64Image = (imgUrl) => {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -20,8 +19,8 @@ const getBase64Image = (imgUrl) => {
   });
 };
 
-export const generateLabelsPDF = async (labelNumbers) => {
-  // 1. Convert the logo to Base64 ONLY ONCE before the loop begins
+// NOTICE: We added 'onProgress' as the second parameter
+export const generateLabelsPDF = async (labelNumbers, onProgress) => {
   const logoBase64 = await getBase64Image(logo);
 
   const doc = new jsPDF({
@@ -57,26 +56,22 @@ export const generateLabelsPDF = async (labelNumbers) => {
         errorCorrectionLevel: 'H' 
       });
 
-      // Draw the QR Code
       doc.addImage(qrDataUrl, "PNG", currentX + qrOffset, currentY + 3.0, qrSize, qrSize);
 
-      // Calculate exact center for the logo
       const logoSize = 3.5; 
       const logoX = currentX + qrOffset + (qrSize / 2) - (logoSize / 2);
       const logoY = currentY + 3.0 + (qrSize / 2) - (logoSize / 2);
 
-      // Draw a tiny white square behind the logo
       doc.setFillColor(255, 255, 255);
       doc.rect(logoX - 0.2, logoY - 0.2, logoSize + 0.4, logoSize + 0.4, 'F');
-
-      // 2. Draw the logo using the Base64 string instead of the Image object
       doc.addImage(logoBase64, "PNG", logoX, logoY, logoSize, logoSize, 'SVSLogo', 'FAST');
 
-      // Draw the label text
       doc.setFontSize(5.5);
       doc.text(label, currentX + (stickerWidth / 2), currentY + 22.0, { align: "center" });
 
+      // UPDATE THE PROGRESS BAR EVERY 50 LABELS
       if (i % 50 === 0) {
+        if (onProgress) onProgress(i, labelNumbers.length);
         await new Promise(resolve => setTimeout(resolve, 1));
       }
 
@@ -84,23 +79,22 @@ export const generateLabelsPDF = async (labelNumbers) => {
       console.error("Error generating QR:", label, err);
     }
   }
+  
+  // Force progress bar to 100% at the very end
+  if (onProgress) onProgress(labelNumbers.length, labelNumbers.length);
 
-  // --- MANUAL BLOB DOWNLOAD ---
   try {
     const pdfBlob = doc.output('blob');
     const blobUrl = URL.createObjectURL(pdfBlob);
-    
     const link = document.createElement('a');
     link.href = blobUrl;
     link.download = "Thermal_100x25_Labels.pdf";
-    
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
     URL.revokeObjectURL(blobUrl);
   } catch (error) {
     console.error("Failed to force download:", error);
-    alert("The PDF was generated, but your browser blocked the massive download. Try generating 1,000 labels at a time.");
+    alert("The PDF was generated, but your browser blocked the massive download.");
   }
 };
