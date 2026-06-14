@@ -502,7 +502,7 @@ export default function SVSVerifyProduct() {
             <div className="svs-vp-section-rule" />
             <Row label="Office Address"    value={data.packedAt} />
             <Row label="Plant Address"     value={data.plantAddress} />
-            <Row label="Produced By"       value={data.producedBy} />
+            <Row label="Produced & Marketed By"       value={data.producedBy} />
           </div>
 
           {/* PDF */}
