@@ -8,7 +8,6 @@ export default function SVSAdminHome() {
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
-    // Fetch the number of new enquiries for the badge
     axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/admin/enquiries/unread-count`)
       .then(res => setUnreadCount(res.data.count))
       .catch(err => console.error(err));
@@ -17,268 +16,289 @@ export default function SVSAdminHome() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=DM+Sans:wght@300;400;500;600&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-        .svs-ah-root {
+        :root {
+          --svs-ink:        #111d14;
+          --svs-forest:     #1d4528;
+          --svs-leaf:       #1bba6b;
+          --svs-leaf-lt:    #34d884;
+          --svs-surface:    #f2f6f3;
+          --svs-white:      #ffffff;
+          --svs-border:     #d4e0d8;
+          --svs-border-dk:  #c0d0c5;
+          --svs-text:       #111d14;
+          --svs-text-mid:   #3d5245;
+          --svs-text-muted: #7a9180;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        .svsh-root {
+          font-family: 'Inter', sans-serif;
+          background: var(--svs-surface);
           min-height: 100vh;
-          background: #0D1F0F;
-          background-image:
-            radial-gradient(ellipse 100% 55% at 50% -5%, rgba(201,150,42,0.10) 0%, transparent 65%),
-            radial-gradient(ellipse 60% 40% at 90% 80%, rgba(201,150,42,0.04) 0%, transparent 55%);
-          font-family: 'DM Sans', sans-serif;
           -webkit-font-smoothing: antialiased;
-          padding: 0 20px 64px;
         }
 
-        /* ── TOP NAV ── */
-        .svs-ah-nav {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 22px 0;
-          border-bottom: 1px solid rgba(201,150,42,0.15);
-          margin-bottom: 56px;
+        /* ── NAVBAR ── */
+        .svsh-navbar {
+          background: var(--svs-ink);
+          position: sticky; top: 0; z-index: 200;
+          box-shadow: 0 1px 0 rgba(27,186,107,0.15), 0 4px 24px rgba(0,0,0,0.35);
         }
-        .svs-ah-nav-logo {
-          height: 46px;
-          object-fit: contain;
-          filter: brightness(0) invert(1);
-          opacity: 0.9;
+        .svsh-navbar-stripe {
+          height: 3px;
+          background: linear-gradient(90deg, transparent 0%, var(--svs-leaf) 30%, var(--svs-leaf-lt) 50%, var(--svs-leaf) 70%, transparent 100%);
         }
-        .svs-ah-signout {
-          display: flex; align-items: center; gap: 8px;
-          background: transparent;
-          border: 1px solid rgba(201,150,42,0.35);
-          color: rgba(248,243,232,0.6);
-          padding: 8px 18px;
-          border-radius: 2px;
-          font-family: 'DM Sans', sans-serif;
-          font-size: 10px; font-weight: 600;
-          letter-spacing: 2.2px;
-          text-transform: uppercase;
-          cursor: pointer;
-          transition: border-color 0.2s, color 0.2s, background 0.2s;
+        .svsh-nav-inner {
+          max-width: 1100px; margin: 0 auto;
+          display: flex; align-items: center; justify-content: space-between;
+          padding: 0 32px; height: 68px;
         }
-        .svs-ah-signout:hover {
-          border-color: rgba(201,150,42,0.65);
-          color: #C9962A;
-          background: rgba(201,150,42,0.05);
+        .svsh-nav-brand { display: flex; align-items: center; gap: 14px; }
+        .svsh-nav-logo-ring {
+          width: 40px; height: 40px; border-radius: 8px;
+          background: rgba(27,186,107,0.10);
+          border: 1px solid rgba(27,186,107,0.28);
+          display: flex; align-items: center; justify-content: center;
+          overflow: hidden; padding: 6px;
         }
+        .svsh-nav-logo-ring img { width: 100%; height: 100%; object-fit: contain; filter: brightness(1.1); }
+        .svsh-nav-name { font-family: 'DM Serif Display', serif; font-size: 15px; color: #fff; line-height: 1.2; }
+        .svsh-nav-tag { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: rgba(27,186,107,0.65); letter-spacing: 1px; text-transform: uppercase; }
+        .svsh-logout-btn {
+          display: flex; align-items: center; gap: 7px;
+          background: rgba(255,255,255,0.05);
+          border: 1px solid rgba(255,255,255,0.14);
+          color: rgba(255,255,255,0.65);
+          padding: 8px 16px; border-radius: 5px;
+          cursor: pointer; font-size: 12px; font-weight: 600;
+          font-family: 'Inter', sans-serif;
+          transition: background 0.15s, border-color 0.15s, color 0.15s;
+        }
+        .svsh-logout-btn:hover {
+          background: rgba(255,255,255,0.09);
+          border-color: rgba(255,255,255,0.25);
+          color: rgba(255,255,255,0.9);
+        }
+        .svsh-logout-btn svg { width: 13px; height: 13px; }
 
-        /* ── HERO ── */
-        .svs-ah-hero {
-          max-width: 640px;
-          margin: 0 auto 52px;
+        /* ── PAGE HEADER ── */
+        .svsh-page-header {
+          background: var(--svs-white);
+          border-bottom: 1px solid var(--svs-border);
+          padding: 56px 32px 52px;
           text-align: center;
         }
-        .svs-ah-eyebrow {
-          font-size: 9px; font-weight: 600;
-          letter-spacing: 3.5px; text-transform: uppercase;
-          color: #C9962A; margin-bottom: 14px;
+        .svsh-header-title {
+          font-family: 'DM Serif Display', serif;
+          font-size: 46px; margin-bottom: 12px;
+          color: var(--svs-ink);
         }
-        .svs-ah-title {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: 42px; font-weight: 600;
-          color: #F8F3E8;
-          line-height: 1.15;
-          letter-spacing: 0.5px;
-          margin-bottom: 14px;
+        .svsh-header-title em { color: var(--svs-leaf); font-style: italic; }
+        .svsh-header-sub { font-size: 14px; color: var(--svs-text-muted); }
+
+        /* ── MAIN CONTENT ── */
+        .svsh-container {
+          max-width: 860px; margin: 0 auto;
+          padding: 52px 28px 80px;
         }
-        .svs-ah-title em {
-          font-style: italic;
-          color: #C9962A;
+
+        .svsh-section-label {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 10px; font-weight: 600;
+          letter-spacing: 1.5px; text-transform: uppercase;
+          color: var(--svs-text-muted);
+          margin-bottom: 20px;
+          display: flex; align-items: center; gap: 12px;
         }
-        .svs-ah-divider {
-          display: flex; align-items: center; gap: 10px;
-          justify-content: center;
-          margin: 18px auto 18px;
-        }
-        .svs-ah-divider-line {
-          width: 52px; height: 1px;
-          background: linear-gradient(90deg, transparent, #C9962A);
-        }
-        .svs-ah-divider-line.rev {
-          background: linear-gradient(90deg, #C9962A, transparent);
-        }
-        .svs-ah-divider-diamond {
-          width: 5px; height: 5px;
-          background: #C9962A;
-          transform: rotate(45deg);
-        }
-        .svs-ah-sub {
-          font-size: 13px; font-weight: 300;
-          color: rgba(248,243,232,0.4);
-          letter-spacing: 0.2px; line-height: 1.7;
+        .svsh-section-label::after {
+          content: ''; flex: 1; height: 1px;
+          background: var(--svs-border);
         }
 
         /* ── CARDS GRID ── */
-        .svs-ah-grid {
+        .svsh-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 20px;
-          max-width: 740px;
-          margin: 0 auto;
         }
-        @media (max-width: 540px) {
-          .svs-ah-grid { grid-template-columns: 1fr; }
-          .svs-ah-title { font-size: 32px; }
+        @media (max-width: 580px) {
+          .svsh-grid { grid-template-columns: 1fr; }
+          .svsh-header-title { font-size: 34px; }
         }
 
-        .svs-ah-card {
+        .svsh-card {
           position: relative;
-          background: #F8F3E8;
-          border-radius: 3px;
+          background: var(--svs-white);
+          border: 1px solid var(--svs-border);
+          border-radius: 10px;
           padding: 32px 28px 28px;
           cursor: pointer;
           overflow: hidden;
-          box-shadow:
-            0 0 0 1px rgba(201,150,42,0.3),
-            0 0 0 4px rgba(13,31,15,0.6),
-            0 0 0 5px rgba(201,150,42,0.12),
-            0 16px 40px rgba(0,0,0,0.4);
-          transition: transform 0.2s ease, box-shadow 0.2s ease;
+          box-shadow: 0 4px 12px rgba(17,29,20,0.06), 0 1px 3px rgba(17,29,20,0.04);
+          transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
         }
-        .svs-ah-card::before {
-          content: '';
-          position: absolute; inset: 7px;
-          border: 1px solid rgba(201,150,42,0.18);
-          border-radius: 1px;
-          pointer-events: none;
-          z-index: 0;
-        }
-        .svs-ah-card:hover {
+        .svsh-card:hover {
           transform: translateY(-3px);
-          box-shadow:
-            0 0 0 1px rgba(201,150,42,0.5),
-            0 0 0 4px rgba(13,31,15,0.6),
-            0 0 0 5px rgba(201,150,42,0.2),
-            0 24px 56px rgba(0,0,0,0.5);
+          border-color: var(--svs-leaf);
+          box-shadow: 0 12px 36px rgba(17,29,20,0.10), 0 0 0 1px rgba(27,186,107,0.2);
         }
 
-        /* Gold top ribbon on card */
-        .svs-ah-card-ribbon {
+        /* Green top stripe — matches form card stripe in dashboard */
+        .svsh-card-stripe {
           position: absolute; top: 0; left: 0; right: 0;
-          height: 4px;
-          background: linear-gradient(90deg,
-            #5A7A5C 0%, #C9962A 30%, #E8B84B 50%, #C9962A 70%, #5A7A5C 100%
-          );
+          height: 3px;
+          background: linear-gradient(90deg, transparent, var(--svs-leaf), var(--svs-leaf-lt), var(--svs-leaf), transparent);
+          opacity: 0;
+          transition: opacity 0.2s;
         }
+        .svsh-card:hover .svsh-card-stripe { opacity: 1; }
 
-        .svs-ah-card-icon {
+        .svsh-card-icon-wrap {
           width: 44px; height: 44px;
-          background: #0D1F0F;
-          border: 1px solid rgba(201,150,42,0.4);
-          border-radius: 2px;
+          border-radius: 9px;
+          background: rgba(27,186,107,0.08);
+          border: 1px solid rgba(27,186,107,0.22);
           display: flex; align-items: center; justify-content: center;
-          font-size: 18px;
-          margin-bottom: 20px;
-          position: relative; z-index: 1;
+          margin-bottom: 22px;
         }
-        .svs-ah-card-title {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: 22px; font-weight: 700;
-          color: #0D1F0F;
-          letter-spacing: 0.3px;
-          margin-bottom: 10px;
-          position: relative; z-index: 1;
-        }
-        .svs-ah-card-desc {
-          font-size: 12px; font-weight: 400;
-          color: #5A7A5C;
-          line-height: 1.75;
-          position: relative; z-index: 1;
-        }
-        .svs-ah-card-arrow {
-          display: inline-flex; align-items: center; gap: 6px;
-          margin-top: 20px;
-          font-size: 9px; font-weight: 600;
-          letter-spacing: 2.5px; text-transform: uppercase;
-          color: #C9962A;
-          position: relative; z-index: 1;
-          transition: gap 0.2s;
-        }
-        .svs-ah-card:hover .svs-ah-card-arrow { gap: 10px; }
+        .svsh-card-icon-wrap svg { width: 20px; height: 20px; color: var(--svs-leaf); }
 
-        /* ── BADGE ── */
-        .svs-ah-badge {
-          position: absolute;
-          top: -10px; right: -10px;
-          background: #C9962A;
-          color: #0D1F0F;
-          width: 30px; height: 30px;
+        .svsh-card-title {
+          font-family: 'DM Serif Display', serif;
+          font-size: 22px; font-weight: 400;
+          color: var(--svs-ink);
+          margin-bottom: 10px; line-height: 1.2;
+        }
+        .svsh-card-desc {
+          font-size: 13px; font-weight: 400;
+          color: var(--svs-text-muted);
+          line-height: 1.7;
+        }
+        .svsh-card-cta {
+          display: flex; align-items: center; gap: 6px;
+          margin-top: 24px;
+          font-size: 11px; font-weight: 700;
+          letter-spacing: 0.8px; text-transform: uppercase;
+          color: var(--svs-leaf);
+          font-family: 'Inter', sans-serif;
+        }
+        .svsh-card-cta svg { width: 14px; height: 14px; transition: transform 0.18s; }
+        .svsh-card:hover .svsh-card-cta svg { transform: translateX(3px); }
+
+        /* ── UNREAD BADGE ── */
+        .svsh-badge {
+          position: absolute; top: -9px; right: -9px;
+          background: #e53e3e;
+          color: #fff;
+          width: 28px; height: 28px;
           border-radius: 50%;
           display: flex; align-items: center; justify-content: center;
           font-size: 11px; font-weight: 700;
-          font-family: 'DM Sans', sans-serif;
-          box-shadow: 0 2px 10px rgba(201,150,42,0.5);
-          z-index: 20;
-          border: 2px solid #0D1F0F;
+          font-family: 'JetBrains Mono', monospace;
+          box-shadow: 0 2px 8px rgba(229,62,62,0.4);
+          border: 2px solid var(--svs-white);
+          z-index: 10;
         }
 
         /* ── FOOTER ── */
-        .svs-ah-footer {
+        .svsh-footer {
           text-align: center;
-          margin-top: 52px;
-          font-size: 9px; font-weight: 400;
-          color: rgba(248,243,232,0.2);
-          letter-spacing: 2px;
-          text-transform: uppercase;
+          margin-top: 64px;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 10px;
+          color: var(--svs-text-muted);
+          letter-spacing: 1px;
         }
       `}</style>
 
-      <div className="svs-ah-root">
+      <div className="svsh-root">
 
-        {/* NAV */}
-        <nav className="svs-ah-nav">
-          <img src={logo} alt="SVS" className="svs-ah-nav-logo" />
-          <button
-            className="svs-ah-signout"
-            onClick={() => { localStorage.removeItem('svs_token'); navigate('/admin/login'); }}
-          >
-            Sign Out
-          </button>
+        {/* NAVBAR */}
+        <nav className="svsh-navbar">
+          <div className="svsh-navbar-stripe" />
+          <div className="svsh-nav-inner">
+            <div className="svsh-nav-brand">
+              <div className="svsh-nav-logo-ring"><img src={logo} alt="SVS" /></div>
+              <div>
+                <div className="svsh-nav-name">SRI VISHNU SEEDS PVT. LTD.</div>
+                <div className="svsh-nav-tag">Administration Portal</div>
+              </div>
+            </div>
+            <button
+              className="svsh-logout-btn"
+              onClick={() => { localStorage.removeItem('svs_token'); navigate('/admin/login'); }}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                <polyline points="16 17 21 12 16 7"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+              </svg>
+              Sign Out
+            </button>
+          </div>
         </nav>
 
-        {/* HERO */}
-        <div className="svs-ah-hero">
-          <div className="svs-ah-eyebrow">Administration Portal</div>
-          <h1 className="svs-ah-title">Welcome, <em>Admin</em></h1>
-          <div className="svs-ah-divider">
-            <div className="svs-ah-divider-line" />
-            <div className="svs-ah-divider-diamond" />
-            <div className="svs-ah-divider-line rev" />
-          </div>
-          <p className="svs-ah-sub">What would you like to do today?</p>
+        {/* PAGE HEADER */}
+        <div className="svsh-page-header">
+          <h1 className="svsh-header-title">Welcome, <em>Admin</em></h1>
+          <p className="svsh-header-sub">What would you like to do today?</p>
         </div>
 
-        {/* CARDS */}
-        <div className="svs-ah-grid">
+        {/* MAIN */}
+        <div className="svsh-container">
+          <div className="svsh-section-label">Quick Access</div>
 
-          {/* Card 1: QR Generation */}
-          <div className="svs-ah-card" onClick={() => navigate('/admin/dashboard')}>
-            <div className="svs-ah-card-ribbon" />
-            <div className="svs-ah-card-icon">🏷️</div>
-            <div className="svs-ah-card-title">Generate QR Codes</div>
-            <p className="svs-ah-card-desc">Create new batches, generate secure labels, and view production history.</p>
-            <div className="svs-ah-card-arrow">Open →</div>
+          <div className="svsh-grid">
+
+            {/* Card 1: QR Generation */}
+            <div className="svsh-card" onClick={() => navigate('/admin/dashboard')}>
+              <div className="svsh-card-stripe" />
+              <div className="svsh-card-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                  <rect x="3" y="14" width="7" height="7"/><rect x="17" y="17" width="3" height="3"/>
+                  <rect x="14" y="14" width="3" height="3"/>
+                </svg>
+              </div>
+              <div className="svsh-card-title">Generate QR Codes</div>
+              <p className="svsh-card-desc">Create new batches, generate secure labels, and view production history.</p>
+              <div className="svsh-card-cta">
+                Open
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                </svg>
+              </div>
+            </div>
+
+            {/* Card 2: View Enquiries */}
+            <div className="svsh-card" onClick={() => navigate('/admin/enquiries')} style={{ position: 'relative' }}>
+              <div className="svsh-card-stripe" />
+              {unreadCount > 0 && (
+                <div className="svsh-badge">{unreadCount}</div>
+              )}
+              <div className="svsh-card-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                  <polyline points="22,6 12,13 2,6"/>
+                </svg>
+              </div>
+              <div className="svsh-card-title">View Enquiries</div>
+              <p className="svsh-card-desc">Check messages from farmers and dealers. Messages auto-delete after 90 days.</p>
+              <div className="svsh-card-cta">
+                Open
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                </svg>
+              </div>
+            </div>
+
           </div>
 
-          {/* Card 2: View Enquiries */}
-          <div className="svs-ah-card" onClick={() => navigate('/admin/enquiries')} style={{ position: 'relative' }}>
-            <div className="svs-ah-card-ribbon" />
-            {unreadCount > 0 && (
-              <div className="svs-ah-badge">{unreadCount}</div>
-            )}
-            <div className="svs-ah-card-icon">✉️</div>
-            <div className="svs-ah-card-title">View Enquiries</div>
-            <p className="svs-ah-card-desc">Check messages from farmers and dealers. Messages auto-delete after 90 days.</p>
-            <div className="svs-ah-card-arrow">Open →</div>
-          </div>
-
+          <p className="svsh-footer">© {new Date().getFullYear()} Sri Vishnu Seeds Pvt. Ltd.</p>
         </div>
-
-        <p className="svs-ah-footer">© {new Date().getFullYear()} Sri Vishnu Seeds Pvt. Ltd.</p>
       </div>
     </>
   );

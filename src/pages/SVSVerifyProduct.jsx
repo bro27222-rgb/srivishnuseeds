@@ -19,7 +19,7 @@ export default function SVSVerifyProduct() {
     if (!val) return '';
     const num = parseFloat(String(val).replace(/[^0-9.]/g, ''));
     if (isNaN(num)) return val;
-    return `Rs. ${num.toFixed(2)}/-`;
+    return `Rs. ${num.toFixed(2)}`;
   };
 
   useEffect(() => {
