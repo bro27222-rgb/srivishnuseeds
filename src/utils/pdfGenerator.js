@@ -1,16 +1,28 @@
 import { jsPDF } from "jspdf";
 import QRCode from "qrcode";
-// 1. Import your logo
 import logo from '../assets/bnwLogo.png';  
 
-export const generateLabelsPDF = async (labelNumbers) => {
-  // 2. Pre-load the logo image so jsPDF can use it inside the loop
-  const logoImg = new Image();
-  logoImg.src = logo;
-  await new Promise((resolve) => {
-    logoImg.onload = resolve;
-    logoImg.onerror = resolve; 
+// Helper function to convert the image into a Base64 string
+const getBase64Image = (imgUrl) => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "Anonymous";
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+      resolve(canvas.toDataURL("image/png"));
+    };
+    img.onerror = (error) => reject(error);
+    img.src = imgUrl;
   });
+};
+
+export const generateLabelsPDF = async (labelNumbers) => {
+  // 1. Convert the logo to Base64 ONLY ONCE before the loop begins
+  const logoBase64 = await getBase64Image(logo);
 
   const doc = new jsPDF({
     orientation: "landscape", 
@@ -19,11 +31,9 @@ export const generateLabelsPDF = async (labelNumbers) => {
   });
 
   const qrsPerPage = 4;      
-  
   const startX = 2;          
   const stickerWidth = 22.5; 
   const gapX = 1.5;          
-  
   const qrSize = 14; 
   const qrOffset = (stickerWidth - qrSize) / 2; 
 
@@ -44,24 +54,23 @@ export const generateLabelsPDF = async (labelNumbers) => {
         width: 120,  
         margin: 1,
         color: { dark: '#000000', light: '#ffffff' },
-        // 3. CRITICAL FIX: Set error correction to High (allows 30% of QR to be covered)
         errorCorrectionLevel: 'H' 
       });
 
       // Draw the QR Code
       doc.addImage(qrDataUrl, "PNG", currentX + qrOffset, currentY + 3.0, qrSize, qrSize);
 
-      // 4. Calculate exact center for the logo
-      const logoSize = 3.5; // About 25% of the QR code size
+      // Calculate exact center for the logo
+      const logoSize = 3.5; 
       const logoX = currentX + qrOffset + (qrSize / 2) - (logoSize / 2);
       const logoY = currentY + 3.0 + (qrSize / 2) - (logoSize / 2);
 
-      // 5. Draw a tiny white square behind the logo so it stands out and scans easily
+      // Draw a tiny white square behind the logo
       doc.setFillColor(255, 255, 255);
       doc.rect(logoX - 0.2, logoY - 0.2, logoSize + 0.4, logoSize + 0.4, 'F');
 
-      // 6. Draw the logo exactly in the center 
-      doc.addImage(logoImg, "PNG", logoX, logoY, logoSize, logoSize, 'SVSLogo', 'FAST');
+      // 2. Draw the logo using the Base64 string instead of the Image object
+      doc.addImage(logoBase64, "PNG", logoX, logoY, logoSize, logoSize, 'SVSLogo', 'FAST');
 
       // Draw the label text
       doc.setFontSize(5.5);

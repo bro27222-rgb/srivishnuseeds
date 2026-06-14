@@ -14,6 +14,14 @@ export default function SVSVerifyProduct() {
     return `${day}-${month}-${year}`;
   };
 
+  // Automatically cleans up the database number and formats it as Rs. XXX.00/-
+  const formatMRP = (val) => {
+    if (!val) return '';
+    const num = parseFloat(String(val).replace(/[^0-9.]/g, ''));
+    if (isNaN(num)) return val;
+    return `Rs. ${num.toFixed(2)}/-`;
+  };
+
   useEffect(() => {
     axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/verify/${labelNumber}`)
       .then(res => setData(res.data))
@@ -351,6 +359,8 @@ export default function SVSVerifyProduct() {
           border-right: 1px solid rgba(201,150,42,0.14);
           font-family: 'DM Sans', sans-serif;
           position: relative; z-index: 1;
+          display: flex;
+          align-items: center;
         }
         .svs-vp-val {
           flex: 1.65;
@@ -360,11 +370,22 @@ export default function SVSVerifyProduct() {
           line-height: 1.6;
           font-family: 'DM Sans', sans-serif;
           position: relative; z-index: 1;
+          display: flex;
+          align-items: center;
         }
         .svs-vp-val.bold {
           font-family: 'Cormorant Garamond', serif;
           font-weight: 700; font-size: 16px;
           color: #0D1F0F; letter-spacing: 0.3px;
+        }
+        
+        /* New Custom Class for large MRP */
+        .svs-vp-val.mrp-large {
+          font-family: 'Cormorant Garamond', serif;
+          font-weight: 700; 
+          font-size: 24px; 
+          color: #0D1F0F; 
+          letter-spacing: 0.5px;
         }
 
         /* Section divider between rows groups */
@@ -473,13 +494,16 @@ export default function SVSVerifyProduct() {
             <Row label="Date of Packaging" value={formatDate(data.dateOfPackaging)} />
             <Row label="Date of Expiry"    value={formatDate(data.dateOfExpiry)} />
             <div className="svs-vp-section-rule" />
-            <Row label="MRP"               value={data.mrp}                       bold />
+            
+            {/* Updated MRP Row with formatter and isMrp flag */}
+            <Row label="MRP"               value={formatMRP(data.mrp)}            isMrp />
+            
             <Row label="Unit Sale Price"   value={data.unitSalePrice} />
             <Row label="Net Quantity"      value={data.netQty} />
             <div className="svs-vp-section-rule" />
-            <Row label="Packed At"         value={data.packedAt} />
+            <Row label="Office Address"    value={data.packedAt} />
             <Row label="Plant Address"     value={data.plantAddress} />
-            <Row label="Produced & Marketed By"       value={data.producedBy} />
+            <Row label="Produced By"       value={data.producedBy} />
           </div>
 
           {/* PDF */}
@@ -498,9 +522,16 @@ export default function SVSVerifyProduct() {
   );
 }
 
-const Row = ({ label, value, bold }) => (
-  <div className="svs-vp-row">
-    <div className="svs-vp-lbl">{label}</div>
-    <div className={`svs-vp-val${bold ? ' bold' : ''}`}>{value}</div>
-  </div>
-);
+// Updated Row component to support the custom MRP styling
+const Row = ({ label, value, bold, isMrp }) => {
+  let valClass = "svs-vp-val";
+  if (isMrp) valClass += " mrp-large";
+  else if (bold) valClass += " bold";
+
+  return (
+    <div className="svs-vp-row">
+      <div className="svs-vp-lbl">{label}</div>
+      <div className={valClass}>{value}</div>
+    </div>
+  );
+};
