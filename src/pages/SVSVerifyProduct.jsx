@@ -442,7 +442,7 @@ export default function SVSVerifyProduct() {
           <div className="svs-vp-header">
             <div className="svs-vp-emblem">
               <img
-                src="/logo.png"
+                src={logo}
                 alt="Sri Vishnu Seeds"
                 onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='block'; }}
               />
@@ -479,7 +479,7 @@ export default function SVSVerifyProduct() {
             <div className="svs-vp-section-rule" />
             <Row label="Packed At"         value={data.packedAt} />
             <Row label="Plant Address"     value={data.plantAddress} />
-            <Row label="Produced By"       value={data.producedBy} />
+            <Row label="Produced & Marketed By"       value={data.producedBy} />
           </div>
 
           {/* PDF */}

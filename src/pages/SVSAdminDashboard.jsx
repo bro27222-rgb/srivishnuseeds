@@ -5,10 +5,19 @@ import { generateLabelsPDF } from '../utils/pdfGenerator';
 import SVSBatchHistory from './SVSBatchHistory';
 import logo from '../assets/logo.png';
 
-// ── Sri Vishnu Seeds facility addresses ──
-const addressOption1 = `M/s Sri Vishnu Seeds Pvt. Ltd.\n2/4/1247/4/3/A/A/1, Tulasi Road\nVajpayee Colony, Hanamkonda\nWarangal District — 506 001\nTelangana, India`;
+// ── Hardcoded Crop & Variety Data from Image ──
+const PREDEFINED_CROPS = {
+  "Paddy": ["Moksha", "Akarsha", "Kamakshi"],
+  "Maize": ["Tejas", "Saanvi", "Amogha", "Bansi", "Ujjvala"],
+  "Jowar": ["Vasista"],
+  "Sunflower": ["Aditya", "Mitra"],
+  "Bajra": ["Sindhu"]
+};
 
-const addressOption2 = `M/s Sri Vishnu Seeds Pvt. Ltd.\nC/o Parameshwara Seeds\n1-91, KC Camp Road, Ippala Narsingapur\nHuzurabad (V & M)\nKarimnagar District — 505 468\nTelangana, India`;
+// ── Fixed Facility Addresses ──
+const officeAddress = `M/s Sri Vishnu Seeds Pvt. Ltd.\n2/4/1247/4/3/A/A/1, Tulasi Road\nVajpayee Colony, Hanamkonda\nWarangal District — 506 001\nTelangana, India`;
+
+const plantAddress = `M/s Sri Vishnu Seeds Pvt. Ltd.\nC/o Parameshwara Seeds\n1-91, KC Camp Road, Ippala Narsingapur\nHuzurabad (V & M)\nKarimnagar District — 505 468\nTelangana, India.`;
 
 export default function SVSAdminDashboard() {
   const navigate = useNavigate();
@@ -16,13 +25,15 @@ export default function SVSAdminDashboard() {
     productName: '', variety: '', packedLotNumber: '',
     dateOfTesting: '', packagingDate: '', dateOfExpiry: '',
     mrp: '', totalWeight: '', netQty: '', unitSalePrice: '',
-    packedAt: addressOption1,
-    plantAddress: addressOption1,
+    packedAt: officeAddress,
+    plantAddress: plantAddress,
     producedBy: 'SRI VISHNU SEEDS PVT. LTD.',
     quantity: 10
   });
 
   const [loading, setLoading] = useState(false);
+  const [isCustomCrop, setIsCustomCrop] = useState(false);
+  const [isCustomVariety, setIsCustomVariety] = useState(false);
 
   // Auto-calculate unit price & bag quantity
   useEffect(() => {
@@ -46,8 +57,34 @@ export default function SVSAdminDashboard() {
   }, [formData.mrp, formData.netQty, formData.totalWeight]);
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
-const handleLogout = () => {
-    localStorage.removeItem('svs_token'); // Make sure this matches the new key
+
+  // Handle Crop Dropdown logic
+  const handleCropSelect = (e) => {
+    const val = e.target.value;
+    if (val === '__NEW__') {
+      setIsCustomCrop(true);
+      setFormData({ ...formData, productName: '', variety: '' });
+    } else {
+      setIsCustomCrop(false);
+      setIsCustomVariety(false);
+      setFormData({ ...formData, productName: val, variety: '' });
+    }
+  };
+
+  // Handle Variety Dropdown logic
+  const handleVarietySelect = (e) => {
+    const val = e.target.value;
+    if (val === '__NEW__') {
+      setIsCustomVariety(true);
+      setFormData({ ...formData, variety: '' });
+    } else {
+      setIsCustomVariety(false);
+      setFormData({ ...formData, variety: val });
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('svs_token');
     navigate('/admin/login');
   };
 
@@ -56,7 +93,6 @@ const handleLogout = () => {
     setLoading(true);
     const data = new FormData();
     Object.keys(formData).forEach(key => data.append(key, formData[key]));
-    // Update this leaflet URL to your Sri Vishnu Seeds PDF on Cloudinary
     data.append('leaflet', 'https://res.cloudinary.com/dd183sn87/image/upload/v1781378510/srivishnuSeedslogo_mhhnym.jpg');
 
     try {
@@ -70,6 +106,9 @@ const handleLogout = () => {
       setLoading(false);
     }
   };
+
+  // Varieties list depends on selected crop
+  const availableVarieties = PREDEFINED_CROPS[formData.productName] || [];
 
   return (
     <>
@@ -113,13 +152,11 @@ const handleLogout = () => {
           box-shadow: 0 1px 0 rgba(27,186,107,0.15), 0 4px 24px rgba(0,0,0,0.35);
         }
 
-        /* Leaf-green accent stripe */
         .svsd-navbar-stripe {
           height: 3px;
           background: linear-gradient(90deg, transparent 0%, var(--svs-leaf) 30%, var(--svs-leaf-lt) 50%, var(--svs-leaf) 70%, transparent 100%);
         }
 
-        /* Field-row scan lines on navbar — signature element */
         .svsd-navbar-inner-wrap {
           position: relative;
           overflow: hidden;
@@ -145,11 +182,7 @@ const handleLogout = () => {
           position: relative; z-index: 1;
         }
 
-        .svsd-nav-brand {
-          display: flex;
-          align-items: center;
-          gap: 14px;
-        }
+        .svsd-nav-brand { display: flex; align-items: center; gap: 14px; }
         .svsd-nav-logo-ring {
           width: 40px; height: 40px;
           border-radius: 8px;
@@ -161,39 +194,26 @@ const handleLogout = () => {
         }
         .svsd-nav-logo-ring img { width: 100%; height: 100%; object-fit: contain; filter: brightness(1.1); }
 
-        .svsd-nav-text {}
         .svsd-nav-name {
           font-family: 'DM Serif Display', serif;
           font-size: 15px; font-weight: 400;
-          color: #fff;
-          letter-spacing: -0.2px;
-          line-height: 1.2;
+          color: #fff; letter-spacing: -0.2px; line-height: 1.2;
         }
         .svsd-nav-tag {
           font-family: 'JetBrains Mono', monospace;
           font-size: 9px; font-weight: 500;
           letter-spacing: 1px; text-transform: uppercase;
-          color: rgba(27,186,107,0.65);
-          margin-top: 2px;
+          color: rgba(27,186,107,0.65); margin-top: 2px;
         }
 
-        .svsd-nav-right {
-          display: flex;
-          align-items: center;
-          gap: 14px;
-        }
+        .svsd-nav-right { display: flex; align-items: center; gap: 14px; }
         .svsd-nav-indicator {
-          display: flex;
-          align-items: center;
-          gap: 7px;
-          padding: 5px 12px;
-          background: rgba(27,186,107,0.10);
-          border: 1px solid rgba(27,186,107,0.24);
-          border-radius: 4px;
+          display: flex; align-items: center; gap: 7px;
+          padding: 5px 12px; background: rgba(27,186,107,0.10);
+          border: 1px solid rgba(27,186,107,0.24); border-radius: 4px;
         }
         .svsd-nav-dot {
-          width: 6px; height: 6px;
-          border-radius: 50%;
+          width: 6px; height: 6px; border-radius: 50%;
           background: var(--svs-leaf);
           box-shadow: 0 0 8px rgba(27,186,107,0.70);
           animation: svsNavPulse 2.2s ease-in-out infinite;
@@ -210,50 +230,34 @@ const handleLogout = () => {
         }
 
         .svsd-logout-btn {
-          display: flex;
-          align-items: center;
-          gap: 7px;
+          display: flex; align-items: center; gap: 7px;
           background: rgba(255,255,255,0.05);
           border: 1px solid rgba(255,255,255,0.14);
           color: rgba(255,255,255,0.65);
-          padding: 8px 16px;
-          border-radius: 5px;
-          cursor: pointer;
-          font-family: 'Inter', sans-serif;
-          font-size: 12px; font-weight: 600;
-          letter-spacing: 0.3px;
-          transition: all 0.18s ease;
+          padding: 8px 16px; border-radius: 5px; cursor: pointer;
+          font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600;
+          letter-spacing: 0.3px; transition: all 0.18s ease;
         }
         .svsd-logout-btn svg { width: 13px; height: 13px; }
         .svsd-logout-btn:hover {
           background: rgba(255,255,255,0.10);
-          border-color: rgba(255,255,255,0.28);
-          color: #fff;
+          border-color: rgba(255,255,255,0.28); color: #fff;
         }
 
         /* ════════════════════════════════
            PAGE HEADER / HERO
         ════════════════════════════════ */
         .svsd-page-header {
-          background: var(--svs-white);
-          border-bottom: 1px solid var(--svs-border);
-          padding: 48px 32px 44px;
-          text-align: center;
-          position: relative;
-          overflow: hidden;
+          background: var(--svs-white); border-bottom: 1px solid var(--svs-border);
+          padding: 48px 32px 44px; text-align: center; position: relative; overflow: hidden;
         }
-        /* Dot-grid background on page header */
         .svsd-page-header::before {
-          content: '';
-          position: absolute; inset: 0;
+          content: ''; position: absolute; inset: 0;
           background-image: radial-gradient(rgba(17,29,20,0.055) 1px, transparent 1px);
-          background-size: 24px 24px;
-          pointer-events: none;
+          background-size: 24px 24px; pointer-events: none;
         }
-        /* Leaf-glow bloom at the bottom center */
         .svsd-page-header::after {
-          content: '';
-          position: absolute;
+          content: ''; position: absolute;
           bottom: -60px; left: 50%; transform: translateX(-50%);
           width: 480px; height: 160px;
           background: radial-gradient(ellipse, rgba(27,186,107,0.10) 0%, transparent 70%);
@@ -263,106 +267,53 @@ const handleLogout = () => {
         .svsd-header-content { position: relative; z-index: 1; }
 
         .svsd-header-eyebrow {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          margin-bottom: 18px;
-          padding: 5px 13px;
-          background: rgba(27,186,107,0.07);
-          border: 1px solid rgba(27,186,107,0.20);
-          border-radius: 4px;
+          display: inline-flex; align-items: center; gap: 8px; margin-bottom: 18px;
+          padding: 5px 13px; background: rgba(27,186,107,0.07);
+          border: 1px solid rgba(27,186,107,0.20); border-radius: 4px;
         }
         .svsd-eyebrow-dot {
-          width: 5px; height: 5px;
-          border-radius: 50%;
-          background: var(--svs-leaf);
-          box-shadow: 0 0 5px rgba(27,186,107,0.6);
+          width: 5px; height: 5px; border-radius: 50%;
+          background: var(--svs-leaf); box-shadow: 0 0 5px rgba(27,186,107,0.6);
         }
         .svsd-eyebrow-text {
-          font-family: 'JetBrains Mono', monospace;
-          font-size: 10px; font-weight: 500;
-          letter-spacing: 0.5px;
-          color: var(--svs-leaf);
+          font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 500;
+          letter-spacing: 0.5px; color: var(--svs-leaf);
         }
 
         .svsd-header-title {
-          font-family: 'DM Serif Display', serif;
-          font-size: 42px; font-weight: 400;
-          color: var(--svs-ink);
-          line-height: 1.08;
-          letter-spacing: -1px;
-          margin-bottom: 12px;
+          font-family: 'DM Serif Display', serif; font-size: 42px; font-weight: 400;
+          color: var(--svs-ink); line-height: 1.08; letter-spacing: -1px; margin-bottom: 12px;
         }
-        .svsd-header-title em {
-          font-style: italic;
-          color: var(--svs-leaf);
-        }
+        .svsd-header-title em { font-style: italic; color: var(--svs-leaf); }
         .svsd-header-sub {
-          font-family: 'Inter', sans-serif;
-          font-size: 13px; color: var(--svs-text-muted);
-          max-width: 400px;
-          margin: 0 auto;
-          line-height: 1.6;
+          font-family: 'Inter', sans-serif; font-size: 13px; color: var(--svs-text-muted);
+          max-width: 400px; margin: 0 auto; line-height: 1.6;
         }
 
-        /* Minimal dot-rule divider */
         .svsd-header-rule {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          max-width: 200px;
-          margin: 22px auto 0;
+          display: flex; align-items: center; gap: 12px; max-width: 200px; margin: 22px auto 0;
         }
-        .svsd-header-rule::before,
-        .svsd-header-rule::after {
-          content: '';
-          flex: 1; height: 1px;
-          background: var(--svs-border);
+        .svsd-header-rule::before, .svsd-header-rule::after {
+          content: ''; flex: 1; height: 1px; background: var(--svs-border);
         }
         .svsd-rule-diamond {
-          width: 6px; height: 6px;
-          background: var(--svs-leaf);
-          border-radius: 50%;
-          flex-shrink: 0;
-          box-shadow: 0 0 6px rgba(27,186,107,0.5);
+          width: 6px; height: 6px; background: var(--svs-leaf); border-radius: 50%;
+          flex-shrink: 0; box-shadow: 0 0 6px rgba(27,186,107,0.5);
         }
 
         /* ════════════════════════════════
-           CONTAINER
+           CONTAINER & FORM CARD
         ════════════════════════════════ */
-        .svsd-container {
-          max-width: 1050px;
-          margin: 0 auto;
-          padding: 36px 28px 0;
-        }
+        .svsd-container { max-width: 1050px; margin: 0 auto; padding: 36px 28px 0; }
 
-        /* ════════════════════════════════
-           FORM CARD
-        ════════════════════════════════ */
         .svsd-form-card {
-          background: var(--svs-white);
-          border-radius: 10px;
-          box-shadow:
-            0 1px 0 rgba(255,255,255,0.9) inset,
-            0 4px 6px rgba(17,29,20,0.04),
-            0 16px 48px rgba(17,29,20,0.08);
-          border: 1px solid var(--svs-border);
-          overflow: hidden;
+          background: var(--svs-white); border-radius: 10px;
+          box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset, 0 4px 6px rgba(17,29,20,0.04), 0 16px 48px rgba(17,29,20,0.08);
+          border: 1px solid var(--svs-border); overflow: hidden;
         }
+        .svsd-form-stripe { height: 3px; background: var(--svs-leaf); }
 
-        /* Leaf-green top stripe on the form card */
-        .svsd-form-stripe {
-          height: 3px;
-          background: var(--svs-leaf);
-        }
-
-        /* ════════════════════════════════
-           FORM GRID
-        ════════════════════════════════ */
-        .svsd-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-        }
+        .svsd-grid { display: grid; grid-template-columns: 1fr 1fr; }
         @media (max-width: 720px) {
           .svsd-grid { grid-template-columns: 1fr; }
           .svsd-col:first-child { border-right: none; border-bottom: 1px solid var(--svs-border); }
@@ -370,264 +321,124 @@ const handleLogout = () => {
           .svsd-nav-indicator { display: none; }
         }
 
-        .svsd-col {
-          padding: 32px 36px 28px;
-        }
-        .svsd-col:first-child {
-          position: relative;
-        }
-        /* Gradient column divider */
+        .svsd-col { padding: 32px 36px 28px; }
+        .svsd-col:first-child { position: relative; }
         .svsd-col:first-child::after {
-          content: '';
-          position: absolute;
-          top: 28px; right: 0; bottom: 28px;
-          width: 1px;
+          content: ''; position: absolute; top: 28px; right: 0; bottom: 28px; width: 1px;
           background: linear-gradient(180deg, transparent, var(--svs-border) 15%, var(--svs-border) 85%, transparent);
         }
 
         /* ════════════════════════════════
-           SECTION HEADERS
+           SECTION HEADERS & FIELDS
         ════════════════════════════════ */
         .svsd-sec {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          margin-bottom: 22px;
-          padding-bottom: 12px;
-          border-bottom: 1px solid var(--svs-border);
+          display: flex; align-items: center; gap: 10px; margin-bottom: 22px;
+          padding-bottom: 12px; border-bottom: 1px solid var(--svs-border);
         }
-        .svsd-sec + .svsd-sec,
-        .svsd-sec-gap {
-          margin-top: 30px;
-        }
+        .svsd-sec + .svsd-sec, .svsd-sec-gap { margin-top: 30px; }
         .svsd-sec-mark {
-          width: 26px; height: 26px;
-          border-radius: 6px;
-          background: rgba(27,186,107,0.08);
-          border: 1px solid rgba(27,186,107,0.20);
-          display: flex; align-items: center; justify-content: center;
-          flex-shrink: 0;
+          width: 26px; height: 26px; border-radius: 6px; background: rgba(27,186,107,0.08);
+          border: 1px solid rgba(27,186,107,0.20); display: flex; align-items: center; justify-content: center; flex-shrink: 0;
         }
         .svsd-sec-mark svg { width: 13px; height: 13px; color: var(--svs-leaf); }
         .svsd-sec-title {
-          font-family: 'Inter', sans-serif;
-          font-size: 10px; font-weight: 700;
-          letter-spacing: 1px; text-transform: uppercase;
-          color: var(--svs-text-muted);
+          font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 700;
+          letter-spacing: 1px; text-transform: uppercase; color: var(--svs-text-muted);
         }
 
-        /* ════════════════════════════════
-           FIELDS + INPUTS
-        ════════════════════════════════ */
         .svsd-field { margin-bottom: 18px; }
         .svsd-label {
-          display: block;
-          font-family: 'Inter', sans-serif;
-          font-size: 11px; font-weight: 600;
-          letter-spacing: 0.5px; text-transform: uppercase;
-          color: var(--svs-text-mid);
-          margin-bottom: 7px;
+          display: block; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600;
+          letter-spacing: 0.5px; text-transform: uppercase; color: var(--svs-text-mid); margin-bottom: 7px;
         }
         .svsd-input {
-          width: 100%;
-          padding: 11px 14px;
-          border: 1.5px solid var(--svs-border-dk);
-          border-radius: 6px;
-          font-family: 'Inter', sans-serif;
-          font-size: 14px; font-weight: 400;
-          color: var(--svs-text);
-          background: #f7faf8;
-          outline: none;
-          transition: border-color 0.18s, box-shadow 0.18s, background 0.15s;
-          letter-spacing: 0px;
-          -webkit-appearance: none;
-          appearance: none;
+          width: 100%; padding: 11px 14px; border: 1.5px solid var(--svs-border-dk); border-radius: 6px;
+          font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 400; color: var(--svs-text);
+          background: #f7faf8; outline: none; transition: border-color 0.18s, box-shadow 0.18s, background 0.15s;
+          -webkit-appearance: none; appearance: none;
         }
         .svsd-input:focus {
-          border-color: var(--svs-leaf);
-          box-shadow: 0 0 0 3px rgba(27,186,107,0.12);
-          background: #fff;
+          border-color: var(--svs-leaf); box-shadow: 0 0 0 3px rgba(27,186,107,0.12); background: #fff;
         }
         .svsd-input::placeholder { color: #aabcb2; font-weight: 400; font-size: 13px; }
-        .svsd-input[type="date"] { color: var(--svs-text); }
 
-        /* Select wrapper + custom chevron */
         .svsd-select-wrap { position: relative; }
         .svsd-select-wrap::after {
-          content: '';
-          position: absolute;
-          right: 14px; top: 50%;
-          transform: translateY(-50%);
-          width: 0; height: 0;
-          border-left: 4px solid transparent;
-          border-right: 4px solid transparent;
-          border-top: 5px solid var(--svs-text-muted);
-          pointer-events: none;
+          content: ''; position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+          width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent;
+          border-top: 5px solid var(--svs-text-muted); pointer-events: none;
         }
 
-        /* Read-only address textarea */
         .svsd-textarea {
-          width: 100%;
-          padding: 10px 14px;
-          border: 1.5px solid var(--svs-border);
-          border-radius: 6px;
-          font-family: 'JetBrains Mono', monospace;
-          font-size: 11px; line-height: 1.7;
-          color: var(--svs-text-muted);
-          background: #f7faf8;
-          resize: none;
-          outline: none;
-          cursor: not-allowed;
-          letter-spacing: 0px;
+          width: 100%; padding: 12px 14px; border: 1.5px solid var(--svs-border); border-radius: 6px;
+          font-family: 'Inter', sans-serif; font-size: 13px; line-height: 1.6; color: var(--svs-text-mid);
+          background: #f7faf8; resize: none; outline: none; cursor: default;
         }
-
-        .svsd-preview-label {
-          font-family: 'Inter', sans-serif;
-          font-size: 9px; font-weight: 600;
-          letter-spacing: 1px; text-transform: uppercase;
-          color: rgba(122,145,128,0.60);
-          margin-bottom: 5px;
-          display: block;
+        .svsd-clear-btn {
+          margin-left: 8px; font-size: 20px; color: var(--svs-text-muted);
+          background: none; border: none; cursor: pointer; display: flex; align-items: center;
         }
+        .svsd-clear-btn:hover { color: #d9534f; }
 
         /* ════════════════════════════════
-           BOTTOM PANEL — ink dark, signature scan-line
+           BOTTOM PANEL
         ════════════════════════════════ */
         .svsd-final-panel {
-          border-top: 2px solid var(--svs-ink);
-          background: var(--svs-ink);
-          padding: 28px 36px 36px;
-          position: relative;
-          overflow: hidden;
+          border-top: 2px solid var(--svs-ink); background: var(--svs-ink);
+          padding: 28px 36px 36px; position: relative; overflow: hidden;
         }
-        /* Field-row scan lines — dark panel signature */
         .svsd-final-panel::before {
-          content: '';
-          position: absolute; inset: 0;
-          background-image: repeating-linear-gradient(
-            0deg, transparent, transparent 28px,
-            rgba(27,186,107,0.04) 28px, rgba(27,186,107,0.04) 29px
-          );
+          content: ''; position: absolute; inset: 0;
+          background-image: repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(27,186,107,0.04) 28px, rgba(27,186,107,0.04) 29px);
           pointer-events: none;
         }
-        /* Scoped label and input overrides for dark panel */
-        .svsd-final-panel .svsd-label {
-          color: rgba(255,255,255,0.45);
-        }
+        .svsd-final-panel .svsd-label { color: rgba(255,255,255,0.45); }
         .svsd-final-panel .svsd-input {
-          background: rgba(255,255,255,0.06);
-          border-color: rgba(255,255,255,0.14);
-          color: #fff;
+          background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.14); color: #fff;
         }
         .svsd-final-panel .svsd-input:focus {
-          border-color: var(--svs-leaf);
-          background: rgba(255,255,255,0.09);
-          box-shadow: 0 0 0 3px rgba(27,186,107,0.15);
+          border-color: var(--svs-leaf); background: rgba(255,255,255,0.09); box-shadow: 0 0 0 3px rgba(27,186,107,0.15);
         }
-        .svsd-final-panel .svsd-input::placeholder { color: rgba(255,255,255,0.25); }
-
-        .svsd-final-row {
-          display: flex;
-          align-items: flex-end;
-          gap: 20px;
-          margin-bottom: 24px;
-          position: relative; z-index: 1;
-        }
+        .svsd-final-row { display: flex; align-items: flex-end; gap: 20px; margin-bottom: 24px; position: relative; z-index: 1; }
         .svsd-final-qty { width: 180px; flex-shrink: 0; }
 
-        /* Batch count display — terminal/monospace aesthetic */
         .svsd-qty-display {
-          display: flex;
-          align-items: center;
-          gap: 14px;
-          padding: 12px 16px;
-          background: rgba(27,186,107,0.08);
-          border: 1px solid rgba(27,186,107,0.22);
-          border-radius: 6px;
-          margin-top: 12px;
+          display: flex; align-items: center; gap: 14px; padding: 12px 16px;
+          background: rgba(27,186,107,0.08); border: 1px solid rgba(27,186,107,0.22); border-radius: 6px; margin-top: 12px;
         }
         .svsd-qty-icon {
-          width: 32px; height: 32px;
-          border-radius: 5px;
-          background: rgba(27,186,107,0.15);
-          border: 1px solid rgba(27,186,107,0.28);
-          display: flex; align-items: center; justify-content: center;
-          flex-shrink: 0;
+          width: 32px; height: 32px; border-radius: 5px; background: rgba(27,186,107,0.15);
+          border: 1px solid rgba(27,186,107,0.28); display: flex; align-items: center; justify-content: center; flex-shrink: 0;
         }
         .svsd-qty-icon svg { width: 14px; height: 14px; color: var(--svs-leaf); }
         .svsd-qty-num {
-          font-family: 'JetBrains Mono', monospace;
-          font-size: 28px; font-weight: 600;
-          color: var(--svs-leaf);
-          line-height: 1;
-          letter-spacing: -0.5px;
+          font-family: 'JetBrains Mono', monospace; font-size: 28px; font-weight: 600; color: var(--svs-leaf); line-height: 1; letter-spacing: -0.5px;
         }
         .svsd-qty-label {
-          font-family: 'JetBrains Mono', monospace;
-          font-size: 9px; font-weight: 500;
-          letter-spacing: 1.5px; text-transform: uppercase;
-          color: rgba(27,186,107,0.55);
-          margin-top: 3px;
+          font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 500;
+          letter-spacing: 1.5px; text-transform: uppercase; color: rgba(27,186,107,0.55); margin-top: 3px;
         }
 
-        /* ════════════════════════════════
-           SUBMIT BUTTON
-        ════════════════════════════════ */
         .svsd-submit-btn {
-          width: 100%;
-          padding: 18px 32px;
-          background: var(--svs-leaf);
-          color: #fff;
-          border: none;
-          border-radius: 7px;
-          cursor: pointer;
-          font-family: 'Inter', sans-serif;
-          font-size: 13px; font-weight: 700;
-          letter-spacing: 0.8px; text-transform: uppercase;
-          box-shadow:
-            0 4px 6px rgba(0,0,0,0.20),
-            0 10px 30px rgba(27,186,107,0.35);
-          transition: background 0.18s ease, transform 0.15s ease, box-shadow 0.18s ease;
-          position: relative; overflow: hidden;
-          z-index: 1;
-        }
-        .svsd-submit-btn::before {
-          content: '';
-          position: absolute; inset: 0;
-          background: rgba(255,255,255,0.07);
-          opacity: 0;
-          transition: opacity 0.2s;
-          pointer-events: none;
+          width: 100%; padding: 18px 32px; background: var(--svs-leaf); color: #fff; border: none; border-radius: 7px;
+          cursor: pointer; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.8px;
+          text-transform: uppercase; box-shadow: 0 4px 6px rgba(0,0,0,0.20), 0 10px 30px rgba(27,186,107,0.35);
+          transition: background 0.18s ease, transform 0.15s ease, box-shadow 0.18s ease; position: relative; overflow: hidden; z-index: 1;
         }
         .svsd-submit-btn::after {
-          content: '';
-          position: absolute;
-          top: 0; left: -100%; width: 100%; height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.10), transparent);
-          transition: left 0.5s ease;
+          content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.10), transparent); transition: left 0.5s ease;
         }
         .svsd-submit-btn:hover:not(:disabled)::after { left: 100%; }
-        .svsd-submit-btn:hover:not(:disabled)::before { opacity: 1; }
         .svsd-submit-btn:hover:not(:disabled) {
-          background: #16a359;
-          transform: translateY(-2px);
-          box-shadow:
-            0 6px 10px rgba(0,0,0,0.22),
-            0 16px 44px rgba(27,186,107,0.44);
+          background: #16a359; transform: translateY(-2px); box-shadow: 0 6px 10px rgba(0,0,0,0.22), 0 16px 44px rgba(27,186,107,0.44);
         }
-        .svsd-submit-btn:active:not(:disabled) { transform: translateY(0); }
         .svsd-submit-btn:disabled { opacity: 0.60; cursor: not-allowed; }
 
-        .svsd-spinner-row {
-          display: flex; align-items: center; justify-content: center; gap: 12px;
-        }
+        .svsd-spinner-row { display: flex; align-items: center; justify-content: center; gap: 12px; }
         .svsd-spinner {
-          width: 17px; height: 17px;
-          border: 2px solid rgba(255,255,255,0.28);
-          border-top-color: #fff;
-          border-radius: 50%;
-          animation: svsSpinAnim 0.85s linear infinite;
-          flex-shrink: 0;
+          width: 17px; height: 17px; border: 2px solid rgba(255,255,255,0.28); border-top-color: #fff; border-radius: 50%;
+          animation: svsSpinAnim 0.85s linear infinite; flex-shrink: 0;
         }
         @keyframes svsSpinAnim { to { transform: rotate(360deg); } }
       `}</style>
@@ -640,10 +451,8 @@ const handleLogout = () => {
           <div className="svsd-navbar-inner-wrap">
             <div className="svsd-nav-inner">
               <div className="svsd-nav-brand">
-                <div className="svsd-nav-logo-ring">
-                  <img src={logo} alt="Sri Vishnu Seeds" />
-                </div>
-                <div className="svsd-nav-text">
+                <div className="svsd-nav-logo-ring"><img src={logo} alt="Sri Vishnu Seeds" /></div>
+                <div>
                   <div className="svsd-nav-name">SRI VISHNU SEEDS PVT. LTD.</div>
                   <div className="svsd-nav-tag">Batch Management Portal</div>
                 </div>
@@ -673,9 +482,7 @@ const handleLogout = () => {
             </div>
             <h1 className="svsd-header-title">Generate <em>Batch Labels</em></h1>
             <p className="svsd-header-sub">Fill in product details below to generate QR-secured labels and batch records</p>
-            <div className="svsd-header-rule">
-              <div className="svsd-rule-diamond" />
-            </div>
+            <div className="svsd-header-rule"><div className="svsd-rule-diamond" /></div>
           </div>
         </div>
 
@@ -683,7 +490,6 @@ const handleLogout = () => {
         <div className="svsd-container">
           <form onSubmit={handleSubmit} className="svsd-form-card">
             <div className="svsd-form-stripe" />
-
             <div className="svsd-grid">
 
               {/* ── COLUMN 1 ── */}
@@ -697,17 +503,51 @@ const handleLogout = () => {
                   <span className="svsd-sec-title">Product Identification</span>
                 </div>
 
+                {/* Crop Name Dropdown */}
                 <div className="svsd-field">
-                  <label className="svsd-label">Product Name</label>
-                  <input className="svsd-input" name="productName" placeholder="e.g. Paddy" onChange={handleChange} required />
+                  <label className="svsd-label">Crop Name</label>
+                  {!isCustomCrop ? (
+                    <div className="svsd-select-wrap">
+                      <select className="svsd-input" name="productName" value={formData.productName} onChange={handleCropSelect} required style={{ cursor: 'pointer' }}>
+                        <option value="" disabled>Select a crop...</option>
+                        {Object.keys(PREDEFINED_CROPS).map(crop => (
+                          <option key={crop} value={crop}>{crop}</option>
+                        ))}
+                        <option value="__NEW__">+ Add New Crop...</option>
+                      </select>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex' }}>
+                      <input className="svsd-input" name="productName" placeholder="Enter custom crop name" value={formData.productName} onChange={handleChange} required autoFocus />
+                      <button type="button" className="svsd-clear-btn" onClick={() => { setIsCustomCrop(false); setFormData({...formData, productName: '', variety: ''}); }}>&times;</button>
+                    </div>
+                  )}
                 </div>
+
+                {/* Variety Dropdown */}
                 <div className="svsd-field">
                   <label className="svsd-label">Variety</label>
-                  <input className="svsd-input" name="variety" placeholder="e.g. Moksha" onChange={handleChange} required />
+                  {!isCustomVariety ? (
+                    <div className="svsd-select-wrap">
+                      <select className="svsd-input" name="variety" value={formData.variety} onChange={handleVarietySelect} required style={{ cursor: 'pointer' }} disabled={!formData.productName && !isCustomCrop}>
+                        <option value="" disabled>Select variety...</option>
+                        {availableVarieties.map(variety => (
+                          <option key={variety} value={variety}>{variety}</option>
+                        ))}
+                        <option value="__NEW__">+ Add New Variety...</option>
+                      </select>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex' }}>
+                      <input className="svsd-input" name="variety" placeholder="Enter custom variety" value={formData.variety} onChange={handleChange} required autoFocus />
+                      <button type="button" className="svsd-clear-btn" onClick={() => { setIsCustomVariety(false); setFormData({...formData, variety: ''}); }}>&times;</button>
+                    </div>
+                  )}
                 </div>
+
                 <div className="svsd-field">
                   <label className="svsd-label">Packed Lot Number</label>
-                  <input className="svsd-input" name="packedLotNumber" placeholder="Enter lot number" onChange={handleChange} required />
+                  <input className="svsd-input" name="packedLotNumber" placeholder="Enter lot number" value={formData.packedLotNumber} onChange={handleChange} required />
                 </div>
                 <div className="svsd-field">
                   <label className="svsd-label">Packed Lot Quantity (Kg)</label>
@@ -725,15 +565,15 @@ const handleLogout = () => {
 
                 <div className="svsd-field">
                   <label className="svsd-label">Date of Testing</label>
-                  <input className="svsd-input" type="date" name="dateOfTesting" onChange={handleChange} required />
+                  <input className="svsd-input" type="date" name="dateOfTesting" value={formData.dateOfTesting} onChange={handleChange} required />
                 </div>
                 <div className="svsd-field">
                   <label className="svsd-label">Packaging Date</label>
-                  <input className="svsd-input" type="date" name="packagingDate" onChange={handleChange} required />
+                  <input className="svsd-input" type="date" name="packagingDate" value={formData.packagingDate} onChange={handleChange} required />
                 </div>
                 <div className="svsd-field">
                   <label className="svsd-label">Date of Expiry</label>
-                  <input className="svsd-input" type="date" name="dateOfExpiry" onChange={handleChange} required />
+                  <input className="svsd-input" type="date" name="dateOfExpiry" value={formData.dateOfExpiry} onChange={handleChange} required />
                 </div>
               </div>
 
@@ -750,11 +590,11 @@ const handleLogout = () => {
 
                 <div className="svsd-field">
                   <label className="svsd-label">MRP</label>
-                  <input className="svsd-input" name="mrp" placeholder="e.g. Rs 1620.00" onChange={handleChange} required />
+                  <input className="svsd-input" name="mrp" placeholder="e.g. Rs 1620.00" value={formData.mrp} onChange={handleChange} required />
                 </div>
                 <div className="svsd-field">
-                  <label className="svsd-label">Net Quantity</label>
-                  <input className="svsd-input" name="netQty" placeholder="e.g. 12 Kg" onChange={handleChange} required />
+                  <label className="svsd-label">Net Quantity (Kg/Bags)</label>
+                  <input className="svsd-input" name="netQty" placeholder="e.g. 12 Kg" value={formData.netQty} onChange={handleChange} required />
                 </div>
                 <div className="svsd-field">
                   <label className="svsd-label">Unit Sale Price</label>
@@ -770,32 +610,19 @@ const handleLogout = () => {
                   <span className="svsd-sec-title">Facility &amp; Logistics</span>
                 </div>
 
+                {/* Hardcoded Text Areas */}
                 <div className="svsd-field">
-                  <label className="svsd-label">Packed At</label>
-                  <div className="svsd-select-wrap">
-                    <select className="svsd-input" name="packedAt" value={formData.packedAt} onChange={handleChange} required style={{ cursor: 'pointer', marginBottom: '10px' }}>
-                      <option value={addressOption1}>Registered Office — Hanamkonda</option>
-                      <option value={addressOption2}>Processing Unit — Huzurabad, Karimnagar</option>
-                    </select>
-                  </div>
-                  <span className="svsd-preview-label">Address Preview</span>
-                  <textarea className="svsd-textarea" style={{ height: '108px' }} value={formData.packedAt} readOnly />
+                  <label className="svsd-label">Office Address (Packed At)</label>
+                  <textarea className="svsd-textarea" style={{ height: '110px' }} value={formData.packedAt} readOnly />
                 </div>
 
                 <div className="svsd-field">
                   <label className="svsd-label">Plant Address</label>
-                  <div className="svsd-select-wrap">
-                    <select className="svsd-input" name="plantAddress" value={formData.plantAddress} onChange={handleChange} required style={{ cursor: 'pointer', marginBottom: '10px' }}>
-                      <option value={addressOption1}>Registered Office — Hanamkonda</option>
-                      <option value={addressOption2}>Processing Unit — Huzurabad, Karimnagar</option>
-                    </select>
-                  </div>
-                  <span className="svsd-preview-label">Full Address Preview</span>
-                  <textarea className="svsd-textarea" style={{ height: '108px' }} value={formData.plantAddress} readOnly />
+                  <textarea className="svsd-textarea" style={{ height: '130px' }} value={formData.plantAddress} readOnly />
                 </div>
 
-                <div className="svsd-field">
-                  <label className="svsd-label">Produced By</label>
+                <div className="svsd-field" style={{ marginTop: '20px' }}>
+                  <label className="svsd-label">Produced & Marketed By</label>
                   <input className="svsd-input" name="producedBy" value={formData.producedBy} onChange={handleChange} required />
                 </div>
               </div>
@@ -832,7 +659,6 @@ const handleLogout = () => {
                 )}
               </button>
             </div>
-
           </form>
         </div>
 
