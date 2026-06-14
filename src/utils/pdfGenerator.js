@@ -1,7 +1,17 @@
 import { jsPDF } from "jspdf";
 import QRCode from "qrcode";
+// 1. Import your logo
+import logo from '../assets/bnwLogo.png';  
 
 export const generateLabelsPDF = async (labelNumbers) => {
+  // 2. Pre-load the logo image so jsPDF can use it inside the loop
+  const logoImg = new Image();
+  logoImg.src = logo;
+  await new Promise((resolve) => {
+    logoImg.onload = resolve;
+    logoImg.onerror = resolve; 
+  });
+
   const doc = new jsPDF({
     orientation: "landscape", 
     unit: "mm",
@@ -33,10 +43,27 @@ export const generateLabelsPDF = async (labelNumbers) => {
       const qrDataUrl = await QRCode.toDataURL(verifyUrl, { 
         width: 120,  
         margin: 1,
-        color: { dark: '#000000', light: '#ffffff' }
+        color: { dark: '#000000', light: '#ffffff' },
+        // 3. CRITICAL FIX: Set error correction to High (allows 30% of QR to be covered)
+        errorCorrectionLevel: 'H' 
       });
 
+      // Draw the QR Code
       doc.addImage(qrDataUrl, "PNG", currentX + qrOffset, currentY + 3.0, qrSize, qrSize);
+
+      // 4. Calculate exact center for the logo
+      const logoSize = 3.5; // About 25% of the QR code size
+      const logoX = currentX + qrOffset + (qrSize / 2) - (logoSize / 2);
+      const logoY = currentY + 3.0 + (qrSize / 2) - (logoSize / 2);
+
+      // 5. Draw a tiny white square behind the logo so it stands out and scans easily
+      doc.setFillColor(255, 255, 255);
+      doc.rect(logoX - 0.2, logoY - 0.2, logoSize + 0.4, logoSize + 0.4, 'F');
+
+      // 6. Draw the logo exactly in the center 
+      doc.addImage(logoImg, "PNG", logoX, logoY, logoSize, logoSize, 'SVSLogo', 'FAST');
+
+      // Draw the label text
       doc.setFontSize(5.5);
       doc.text(label, currentX + (stickerWidth / 2), currentY + 22.0, { align: "center" });
 
@@ -49,23 +76,19 @@ export const generateLabelsPDF = async (labelNumbers) => {
     }
   }
 
-  // --- THE FIX: MANUAL BLOB DOWNLOAD ---
-  // Instead of doc.save(), we force the browser to handle the massive file directly.
+  // --- MANUAL BLOB DOWNLOAD ---
   try {
     const pdfBlob = doc.output('blob');
     const blobUrl = URL.createObjectURL(pdfBlob);
     
-    // Create an invisible anchor tag
     const link = document.createElement('a');
     link.href = blobUrl;
     link.download = "Thermal_100x25_Labels.pdf";
     
-    // Append to body, click it, and instantly remove it
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     
-    // Clean up the browser memory immediately after download starts
     URL.revokeObjectURL(blobUrl);
   } catch (error) {
     console.error("Failed to force download:", error);
