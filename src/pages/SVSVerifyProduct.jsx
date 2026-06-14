@@ -379,13 +379,12 @@ export default function SVSVerifyProduct() {
           color: #0D1F0F; letter-spacing: 0.3px;
         }
         
-        /* Updated Custom Class for elegant & legible MRP */
+        /* Subtle but significant MRP styling */
         .svs-vp-val.mrp-large {
           font-family: 'DM Sans', sans-serif;
-          font-weight: 600; 
-          font-size: 22px; 
+          font-weight: 500; 
+          font-size: 16px; 
           color: #0D1F0F; 
-          letter-spacing: -0.5px;
         }
 
         /* Section divider between rows groups */
