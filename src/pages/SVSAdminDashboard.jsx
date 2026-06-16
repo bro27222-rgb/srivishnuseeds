@@ -13,6 +13,16 @@ const PREDEFINED_CROPS = {
   "Bajra": ["Sindhu"]
 };
 
+// ── NEW: Hardcoded PDF Leaflet Links ──
+// Replace these dummy links with your actual Cloudinary PDF URLs
+const CROP_LEAFLETS = {
+  "Paddy": "https://res.cloudinary.com/dd183sn87/image/upload/v1781378510/srivishnuSeedslogo_mhhnym.jpg",
+  "Maize": "https://res.cloudinary.com/dunyiktby/image/upload/v1781607205/MaizeLeaflet_f1pcge.pdf",
+  "Jowar": "https://res.cloudinary.com/dd183sn87/image/upload/v1781378510/srivishnuSeedslogo_mhhnym.jpg",
+  "Sunflower": "https://res.cloudinary.com/dd183sn87/image/upload/v1781378510/srivishnuSeedslogo_mhhnym.jpg",
+  "Bajra": "https://res.cloudinary.com/dd183sn87/image/upload/v1781378510/srivishnuSeedslogo_mhhnym.jpg"
+};
+
 const officeAddress = `M/s Sri Vishnu Seeds Pvt. Ltd.\n2/4/1247/4/3/A/A/1, Tulasi Road\nVajpayee Colony, Hanamkonda\nWarangal District — 506 001\nTelangana, India`;
 
 const plantAddress = `M/s Sri Vishnu Seeds Pvt. Ltd.\nC/o Parameshwara Seeds\n1-91, KC Camp Road, Ippala Narsingapur\nHuzurabad (V & M)\nKarimnagar District — 505 468\nTelangana, India.`;
@@ -88,19 +98,21 @@ export default function SVSAdminDashboard() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setProgress({ current: 0, total: 0 }); // Reset progress bar
+    setProgress({ current: 0, total: 0 }); 
 
     const data = new FormData();
     Object.keys(formData).forEach(key => data.append(key, formData[key]));
-    data.append('leaflet', 'https://res.cloudinary.com/dd183sn87/image/upload/v1781378510/srivishnuSeedslogo_mhhnym.jpg');
+    
+    // Look at the map and get the correct link based on the selected crop
+    const selectedLeaflet = CROP_LEAFLETS[formData.productName] || "No Leaflet Provided";
+    data.append('leaflet', selectedLeaflet);
 
     try {
       const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/admin/generate`, data);
       
       const totalLabels = response.data.labelNumbers.length;
-      setProgress({ current: 0, total: totalLabels }); // Start the bar
+      setProgress({ current: 0, total: totalLabels }); 
 
-      // Pass the progress updater function directly into the PDF generator
       await generateLabelsPDF(response.data.labelNumbers, (currentCount) => {
         setProgress({ current: currentCount, total: totalLabels });
       });
